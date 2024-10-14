@@ -80,6 +80,32 @@ const getAppointmentsByDoctorId = asyncHandler(async(req, res) => {
     res.json({ status: httpStatusText.SUCCESS, data: { doctorAppointments } });
 });
 
+const getAppointmentsByPatientId = asyncHandler(async(req, res) => {
+  const requestedPatientId = req.params.id;
+
+  const { authorized, message } = authorizeUserAccess(
+      [userRoles.ADMIN, userRoles.PATIENT],
+      req.headers,
+      requestedPatientId
+  );
+
+  if (!authorized) {
+      return res.status(403).json({ status: httpStatusText.FAIL, message });
+  }
+  const query = req.query;
+  const limit = query.limit || 5;
+  const page = query.page || 1;
+  const skip = (page - 1) * limit;
+  const patientAppointments = await Appointment
+      .find({ patientId: req.params.id }, { '__v': false })
+      .limit(limit)
+      .skip(skip);
+  if (!patientAppointments) {
+      return res.status(404).json({ status: httpStatusText.FAIL, message: 'Ptient Appointments not found' });
+  }
+  res.json({ status: httpStatusText.SUCCESS, data: { patientAppointments } });
+});
+
 
 module.exports = {
     getAllAppointments,
@@ -87,5 +113,6 @@ module.exports = {
     getAppointmentById,
     updateAppointment,
     deleteAppointment,
-    getAppointmentsByDoctorId
+    getAppointmentsByDoctorId,
+    getAppointmentsByPatientId
 }
