@@ -6,10 +6,10 @@ const userRoles = require('../utils/userRoles');
 const verifyToken = require('../middlewares/verifyToken')
 
 router.route('/')
-    .get(verifyToken, allowedTo(userRoles.ADMIN), appointmentController.getAllAppointments)
-    .post(verifyToken, allowedTo(userRoles.ADMIN, userRoles.PATIENT, userRoles.Nurse), appointmentController.postAppointment)
+    .get(appointmentController.getAllAppointments) // verifyToken, allowedTo(userRoles.ADMIN), 
+    .post(appointmentController.postAppointment) //verifyToken, allowedTo(userRoles.ADMIN, userRoles.PATIENT, userRoles.Nurse), 
 
 router.route('/:id')
-    .get(verifyToken, appointmentController.getAppointmentById)
+    .get(appointmentController.getAppointmentById) //verifyToken, 
 
 module.exports = router;
