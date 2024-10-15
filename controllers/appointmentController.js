@@ -4,7 +4,7 @@ const asyncHandler = require('../middlewares/asyncHandler')
 const httpStatusText = require('../utils/httpStatusText')
 const { validateAppointmentTime } = require('../utils/appointmentUtils');
 const appError = require('../utils/appError')
-const { authorizeUserAccess } = require('../utils/authUserAccess');
+//const { authorizeUserAccess } = require('../utils/authUserAccess');
 const userRoles = require('../utils/userRoles')
 
 const getAllAppointments = asyncHandler(async(req, res) => {
