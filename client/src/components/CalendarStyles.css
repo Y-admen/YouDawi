@@ -1,0 +1,20 @@
+.react-calendar {
+ 
+}
+
+
+/* Custom styling for appointment highlighting */
+.react-calendar__tile--now {
+  background-color: #e0f7fa !important;
+}
+
+.react-calendar__tile--active {
+  background-color: #80deea !important;
+  color: white !important;
+}
+
+.highlight {
+  background-color: #ffeb3b !important;
+  color: #000;
+  border-radius: 50%;
+}
