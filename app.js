@@ -11,6 +11,7 @@ const HOSTNAME = '127.0.0.1';
 const PORT = process.env.PORT || 5000;
 const DB_URL = process.env.DB_URL;
 
+app.use('/api/admin', adminRouter);
 app.use('/api/appointments', appointmentRouter);
 app.use('/api/doctors', doctorsRouter);
 
