@@ -6,6 +6,8 @@ const path = require('path');
 
 const appointmentRouter = require('./routes/appointmentRoute');
 const doctorsRouter = require('./routes/doctorsRoute');
+const adminRouter = require('./routes/adminRoute');
+const patientRouter = require('./routes/patientRoute');
 
 const HOSTNAME = '127.0.0.1';
 const PORT = process.env.PORT || 5000;
