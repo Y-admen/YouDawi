@@ -36,3 +36,7 @@ const login= asyncHandler(async(req, res, next) => {
     const token = await generateJWT({ email: nurse.email, id: nurse._id, role: nurse.role });
     return res.status(200).json({ status: httpStatusText.SUCCESS, data: { token } });
 });
+
+module.exports = {
+    login
+}
