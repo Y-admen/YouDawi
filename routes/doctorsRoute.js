@@ -19,4 +19,8 @@ router.route('/resetPassword/:token')
 router.route('/login')
     .post(doctorsController.login);
 
+router.route('/registerNurse')
+    .post(verifyToken, allowedTo(userRoles.DOCTOR, userRoles.ADMIN), doctorsController.registerNurse);
+
+
 module.exports = router;

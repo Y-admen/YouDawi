@@ -147,10 +147,46 @@ const login = asyncHandler(async(req, res, next) => {
     return res.status(200).json({ status: httpStatusText.SUCCESS, data: { token } });
 });
 
+const registerNurse = asyncHandler(async(req, res, next) => {
+    //console.log('Request body:', req.body);
+
+    const { firstName, lastName, email, password, phone } = req.body;
+    //console.log(req.body);
+    const nurse = await Nurse.findOne({email: email});
+    console.log('finding nurs')
+    if (nurse) {
+        const error = appError.create('Nurse already exists', 400, httpStatusText.FAIL)
+        return next(error);
+    }
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    // console.log(hashedPassword)
+    const newNurse = new Nurse({
+        firstName,
+        lastName,
+        email,
+        phone,
+        password: hashedPassword,
+        role: userRoles.NURSE,
+        doctor: req.currentUser.id
+    })
+    try {
+        const token = await generateJWT({ email: newNurse.email, id: newNurse._id, role: newNurse.role });
+        newNurse.token = token;
+        await newNurse.save();
+        await sendNurseRegistrationEmail(newNurse.email, `http://${req.headers.host}/api/nurses/login`, password);
+        res.status(201).json({ status: httpStatusText.SUCCESS, data: { nurse: newNurse } });
+    } catch (err) {
+        const error = appError.create('Failed to register the nurse', 500, httpStatusText.ERROR);
+        return next(error);
+    }
+});
+
 
 module.exports = {
     register,
     requestResetPassword,
     resetPassword,
-    login
+    login,
+    registerNurse
 }
