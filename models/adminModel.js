@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const userRoles = require('../utils/userRoles');
 
 const adminSchema = new mongoose.Schema({
   userName: {
@@ -13,6 +14,8 @@ const adminSchema = new mongoose.Schema({
   },
   role: {
     type: String,
+    enum: [userRoles.ADMIN],
+    default: userRoles.ADMIN
   },
   token: {
     type: String
