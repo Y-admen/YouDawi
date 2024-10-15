@@ -8,6 +8,12 @@ const userRoles = require('../utils/userRoles');
 const upload = require('../utils/upload');
 
 router.route('/login')
-    .post(nursesController.login)
+    .post(nursesController.login);
+
+router.route('/requestResetPassword')
+    .post(nursesController.requestResetPassword);
+
+router.route('/resetPassword/:token')
+    .post(nursesController.resetPassword)
 
 module.exports = router;
