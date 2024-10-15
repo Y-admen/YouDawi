@@ -9,3 +9,6 @@ const upload = require('../utils/upload');
 
 router.route('/register')
     .post(upload.single('avatar'), doctorsController.register);
+
+router.route('/login')
+    .post(doctorsController.login);
