@@ -190,12 +190,14 @@ const getDoctorsByName = asyncHandler(async (req, res, next) => {
             appError.create('Last name is required', 400, httpStatusText.FAIL)
         );
     }
-
+    const { role } = req.currentUser;
+    const statusCondition = role === 'admin' ? {} : { status: 'approved' };
     const doctors = await Doctor.find({
         $or: [
             { firstName: { $regex: firstName, $options: 'i' } },
             { lastName: { $regex: lastName, $options: 'i' } }
-        ]
+        ],
+        ...statusCondition
     });
 
     if (!doctors || doctors.length === 0) {
