@@ -48,9 +48,12 @@ router.route('/:id')
     .put(verifyToken, allowedTo(userRoles.DOCTOR, userRoles.ADMIN),doctorsController.updateDoctor)
     .delete(verifyToken, allowedTo(userRoles.DOCTOR, userRoles.ADMIN), doctorsController.deleteDoctor);
 
-router.route('/:id/schedule')
+router.route('/:id/schedule')  // it returns the doctor appointments
     .get(verifyToken, allowedTo(userRoles.DOCTOR, userRoles.NURSE, userRoles.ADMIN), doctorsController.getDoctorSchedule)
     .put(verifyToken, allowedTo(userRoles.DOCTOR, userRoles.NURSE, userRoles.ADMIN), doctorsController.updateDoctorSchedule)
+
+router.route('/:id/freeSlots')
+    .get(doctorsController.getDoctorFreeSlots);
 
 router.route('/:id/status')
     .put(verifyToken, allowedTo(userRoles.ADMIN),doctorsController.updateDoctorStatus);

@@ -64,10 +64,18 @@ const DoctorSchema = new mongoose.Schema({
                 type: String,
                 required: true
             },
-            timeSlots: {
-                type: [String],
-                required: true
-            }
+            timeSlots: [
+                {
+                    slot: {
+                        type: String,
+                        required: true // Example: "09:00"
+                    },
+                    isBooked: {
+                        type: Boolean,
+                        default: false
+                    }
+                }
+            ]
         }
     ],
     price: {
