@@ -214,7 +214,9 @@ const getDoctorsByLocation = asyncHandler(async (req, res, next) => {
             appError.create('City is required', 400, httpStatusText.FAIL)
         );
     }
-    const doctors = await Doctor.find({ city });
+    const { role} = req.currentUser;
+    const roleCondition = role === 'admin' ? { city } : { city, status: 'approved' };
+    const doctors = await Doctor.find(roleCondition);
     if (!doctors || doctors.length === 0) {
         return next(
             appError.create('No doctors found in this location', 404, 'Not Found')
