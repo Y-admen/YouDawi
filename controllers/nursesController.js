@@ -85,9 +85,129 @@ const resetPassword = asyncHandler(async (req, res, next) => {
     res.status(200).json({ status: httpStatusText.SUCCESS, message: 'Password has been reset successfully' });
 });
 
+const getAllNurses = asyncHandler(async(req, res) => {
+    const query = req.query;
+    const limit = query.limit || 5;
+    const page = query.page || 1;
+    const skip = (page - 1) * limit;
+    const nurses = await Nurse.find({}, { '__v': false, 'password': false }).limit(limit).skip(skip);
+    res.json({ status: httpStatusText.SUCCESS, data: { nurses } });
+});
+
+const getNurseById = asyncHandler(async(req, res) => {
+    const nurse = await Nurse.findById(req.params.id);
+    if (!nurse) {
+        return res.status(404).json({ status: httpStatusText.FAIL, message: 'Nurse not found' });
+    }
+    res.json({ status: httpStatusText.SUCCESS, data: { nurse } });
+});
+
+const updateNurse = asyncHandler(async(req, res) => {
+    if (req.currentUser.role !== userRoles.ADMIN && req.currentUser.role !== userRoles.DOCTOR){
+        if (req.currentUser.id !== req.params.id) {
+            return res.status(403).json({
+                status: httpStatusText.FAIL,
+                message: 'You are not authorized to update this nurse\'s data.'
+            });
+        }
+        delete req.body.status;
+    }
+    if (req.body.password) {
+        const salt = await bcrypt.genSalt(10);
+        req.body.password = await bcrypt.hash(req.body.password, salt);
+    }
+    const nurse = await Nurse.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    if (!nurse) {
+        return res.status(404).json({ status: httpStatusText.FAIL, message: 'Nurse not found' });
+    }
+    res.json({ status: httpStatusText.SUCCESS, data: { nurse } });
+});
+
+const deleteNurse = asyncHandler(async(req, res) => {
+    const nurse = await Nurse.findByIdAndDelete(req.params.id);
+    if (!nurse) {
+        return res.status(404).json({ status: httpStatusText.FAIL, message: 'Nurse not found' });
+    }
+    res.json({ status: httpStatusText.SUCCESS, data: null });
+});
+
+
+const deactivateNurse = asyncHandler(async(req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
+    const nurse = await Nurse.findByIdAndUpdate(id, { status }, { new: true, runValidators: true});
+    if (!nurse) {
+        return res.status(404).json({ status: httpStatusText.FAIL, message: 'Nurse not found' });
+    }
+    res.json({ status: httpStatusText.SUCCESS, data: { nurse } });
+});
+
+const getProfile = asyncHandler(async(req, res, next) => {
+    const nurse = await Nurse.findById(req.currentUser.id);
+    if (!nurse) {
+        return res.status(404).json({ status: httpStatusText.FAIL, message: 'Nurse not found' });
+    }
+    res.json({ status: httpStatusText.SUCCESS, data: { nurse } });
+});
+
+const getNurseDashboard = asyncHandler(async (req, res, next) => {
+    const nurseId = req.currentUser.id;
+    
+    try {
+        const nurse = await Nurse.findById(nurseId)
+            .populate('doctor', 'firstName lastName')
+            .select('-password');
+        
+        if (!nurse) {
+            return res.status(404).json({ message: 'Nurse not found' });
+        }
+
+        const dashboardData = {
+            nurseProfile: {
+                firstName: nurse.firstName,
+                lastName: nurse.lastName,
+                email: nurse.email,
+                phone: nurse.phone,
+                avatar: nurse.avatar,
+                doctor: nurse.doctor ? `${nurse.doctor.firstName} ${nurse.doctor.lastName}` : null
+            },
+            appointments: await getUpcomingAppointments(nurse._id),
+            patients: await Appointment.find( { nurseId: nurseId })
+                .distinct('patientId')
+                .populate('patientId', 'firstName lastName email')
+        };
+
+        res.status(200).json(dashboardData);
+    } catch (error) {
+        console.error('Error fetching nurse dashboard:', error);
+        next(error); 
+    }
+});
+
+async function getUpcomingAppointments(nurseId) {
+    try {
+        return Appointment.find({
+            nurseId: nurseId,
+            status: 'confirmed'
+        })
+        .populate('patient', 'firstName lastName phone email')
+        .select('_id appointmentDate patient');
+    } catch (error) {
+        console.error('Error fetching upcoming appointments:', error);
+        throw error;
+    }
+}
+
 
 module.exports = {
     login,
     requestResetPassword,
-    resetPassword
+    resetPassword,
+    getAllNurses,
+    getNurseById,
+    updateNurse,
+    deleteNurse,
+    deactivateNurse,
+    getProfile,
+    getNurseDashboard
 }
