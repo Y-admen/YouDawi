@@ -43,6 +43,9 @@ router.route('/registerNurse')
 router.route('/nurses')
     .get(verifyToken, allowedTo(userRoles.DOCTOR), doctorsController.getNursesByDoctor);
 
+router.route('/patients')
+    .get(verifyToken, allowedTo(userRoles.DOCTOR), doctorsController.getPatientsByDoctor);
+
 router.route('/:id')
     .get(verifyToken, doctorsController.getDoctorById)
     .put(verifyToken, allowedTo(userRoles.DOCTOR, userRoles.ADMIN),doctorsController.updateDoctor)

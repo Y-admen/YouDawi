@@ -405,6 +405,25 @@ const getNursesByDoctor = asyncHandler(async(req, res) => {
     res.json({ status: httpStatusText.SUCCESS, data: { nurses } });
 });
 
+const getPatientsByDoctor = asyncHandler(async(req, res) => {
+    const doctorId = req.currentUser.id || req.currentUser._id; 
+    console.log("Doctor ID from Token:", doctorId);
+
+    const query = req.query;
+    const limit = query.limit || 5;
+    const page = query.page || 1;
+    const skip = (page - 1) * limit;
+    const patients = await Patient.find({ doctor: doctorId }, { '__v': false, 'password': false })
+                                .limit(limit)
+                                .skip(skip);
+    console.log("Patients Found:", patients);
+
+    if (!patients.length) {
+        return res.status(404).json({ status: httpStatusText.FAIL, message: 'No patients found' });
+    }
+    res.json({ status: httpStatusText.SUCCESS, data: { patients } });
+});
+
 const rateDoctor = asyncHandler(async (req, res, next) => {
     const { rating } = req.body;
     const doctorId = req.params.id;
@@ -464,6 +483,7 @@ module.exports = {
     getDoctorDashboard,
     registerNurse,
     getNursesByDoctor,
+    getPatientsByDoctor,
     rateDoctor,
     getDoctorRatings
 }
