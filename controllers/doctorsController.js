@@ -147,6 +147,181 @@ const login = asyncHandler(async(req, res, next) => {
     return res.status(200).json({ status: httpStatusText.SUCCESS, data: { token } });
 });
 
+const getAllDoctors = asyncHandler(async(req, res, next) => {
+    const query = req.query;
+    const limit = query.limit || 5;
+    const page = query.page || 1;
+    const skip = (page - 1) * limit;
+    const { role } = req.currentUser;
+    const roleCondition = role === 'admin' ? {} : { status: 'approved' };
+    const doctors = await Doctor.find(roleCondition, { '__v': false, 'password': false }).limit(limit).skip(skip);
+    res.json({ status: httpStatusText.SUCCESS, data: { doctors } });
+});
+
+const getDoctorsBySpecialty = asyncHandler(async (req, res, next) => {
+    const { specialty } = req.query;
+    // console.log(specialty);
+    if (!specialty || !specialty.trim()) {
+        return next(
+        appError.create('Specialty is required', 400, httpStatusText.FAIL)
+    );
+    }
+    const { role} = req.currentUser;
+    const roleCondition = role === 'admin' ? { specialization: specialty } : { specialization: specialty, status: 'approved' };
+    const doctors = await Doctor.find(roleCondition);
+    
+    if (!doctors || doctors.length === 0) {
+        return next(
+        appError.create('No doctors found for this specialty', 404, 'Not Found')
+    );
+    }
+    res.status(200).json({ status: httpStatusText.SUCCESS, data: { doctors } });
+});
+
+const getDoctorsByName = asyncHandler(async (req, res, next) => {
+    const { firstName, lastName } = req.query;
+    if (!firstName || !firstName.trim()) {
+        return next(
+            appError.create('First name is required', 400, httpStatusText.FAIL)
+        );
+    }
+    if (!lastName || !lastName.trim()) {
+        return next(
+            appError.create('Last name is required', 400, httpStatusText.FAIL)
+        );
+    }
+
+    const doctors = await Doctor.find({
+        $or: [
+            { firstName: { $regex: firstName, $options: 'i' } },
+            { lastName: { $regex: lastName, $options: 'i' } }
+        ]
+    });
+
+    if (!doctors || doctors.length === 0) {
+        return next(
+            appError.create('No doctors found with this name', 404, 'Not Found')
+        );
+    }
+
+    res.status(200).json({ status: httpStatusText.SUCCESS, data: { doctors } });
+});
+
+const getDoctorsByLocation = asyncHandler(async (req, res, next) => {
+    const { city } = req.query;
+    if (!city || !city.trim()) {
+        return next(
+            appError.create('City is required', 400, httpStatusText.FAIL)
+        );
+    }
+    const doctors = await Doctor.find({ city });
+    if (!doctors || doctors.length === 0) {
+        return next(
+            appError.create('No doctors found in this location', 404, 'Not Found')
+        );
+    }
+    res.status(200).json({ status: httpStatusText.SUCCESS, data: { doctors } });
+});
+
+const getDoctorById = asyncHandler(async(req, res, next) => {
+    const doctor = await Doctor.findById(req.params.id);
+    if (!doctor) {
+        return res.status(404).json({ status: httpStatusText.FAIL, message: 'Doctor not found' });
+    }
+    console.log(doctor.status)
+    if (doctor.status !== 'approved') {
+        return res.status(400).json({ status: httpStatusText.FAIL, message: 'Doctor not approved' });
+    }
+    res.json({ status: httpStatusText.SUCCESS, data: { doctor } });
+});
+
+const updateDoctor = asyncHandler(async(req, res, next) => {
+    if (req.currentUser.role !== userRoles.ADMIN){
+        if (req.currentUser.id !== req.params.id) {
+            return res.status(403).json({
+                status: httpStatusText.FAIL,
+                message: 'You are not authorized to update this doctor\'s data.'
+            });
+        }
+        delete req.body.status;
+    }
+    if (req.body.password) {
+        const salt = await bcrypt.genSalt(10);
+        req.body.password = await bcrypt.hash(req.body.password, salt);
+    }
+    const doctor = await Doctor.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    if (!doctor) {
+        return res.status(404).json({ status: httpStatusText.FAIL, message: 'Doctor not found' });
+    }
+    res.json({ status: httpStatusText.SUCCESS, data: { doctor } });
+});
+
+const updateDoctorStatus = asyncHandler(async(req, res, next) => {
+    const { id } = req.params;
+    const { status } = req.body;
+    const doctor = await Doctor.findByIdAndUpdate(id, { status }, { new: true, runValidators: true});
+    if (!doctor) {
+        return res.status(404).json({ status: httpStatusText.FAIL, message: 'Doctor not found' });
+    }
+    res.json({ status: httpStatusText.SUCCESS, data: { doctor } });
+});
+
+const deleteDoctor = asyncHandler(async(req, res, next) => {
+    const doctor = await Doctor.findByIdAndDelete(req.params.id);
+    if (!doctor) {
+        return res.status(404).json({ status: httpStatusText.FAIL, message: 'Doctor not found' });
+    }
+    res.json({ status: httpStatusText.SUCCESS, data: null });
+})
+
+const getDoctorSchedule = asyncHandler(async(req, res, next) => {
+    console.log(req.params);
+    const { id } = req.params;
+    const appointments = await Appointment.find({ doctorId: id });
+    if (!appointments) {
+        return res.status(404).json({ status: httpStatusText.FAIL, message: 'Appointments not found' });
+    }
+    res.json({ status: httpStatusText.SUCCESS, data: { appointments } });
+});
+
+const updateDoctorSchedule = asyncHandler(async(req, res, next) => {
+    const { id } = req.params;
+    const newData = req.params.body;
+    const updatedAppointment = await Doctor.findByIdAndUpdate(id, { schedule: newData }, { new: true, runValidators: true });
+    res.json({ status: httpStatusText.SUCCESS, data: { updatedAppointment } });
+});
+
+const getProfile = asyncHandler(async(req, res, next) => {
+    const { id } = req.currentUser;
+    const doctor = await Doctor.findById(id);
+    if (!doctor) {
+        return res.status(404).json({ status: httpStatusText.FAIL, message: 'Doctor not found' });
+    }
+    res.json({ status: httpStatusText.SUCCESS, data: { doctor } });
+});
+
+const getDoctorDashboard = asyncHandler(async(req, res, next) => {
+    const doctorId = req.currentUser.id;
+    const upcomingAppointments = await Appointment.find({
+        doctorId: doctorId,
+        appointmentDate: { $gte: new Date() },
+        status: 'confirmed'  // Better to change to scheduled in the model
+    })
+    .populate('patientId', 'firstName lastName phone email')
+    .populate('nurseId', 'firstName lastName')
+
+    const patients = await Appointment.find( { doctorId: doctorId })
+        .distinct('patientId')
+        .populate('patientId', 'firstName lastName email');
+    
+    const nurses = await Appointment.find({ doctorId: doctorId })
+        .distinct(nurseId)
+        .populate('nurseId', 'firstName lastName');
+
+    const doctor = await Doctor.findById(doctorId)
+    res.status(200).json({ status: httpStatusText.SUCCESS, data: { upcomingAppointments, patients, nurses, schedule: doctor.schedule }})
+});
+
 const registerNurse = asyncHandler(async(req, res, next) => {
     //console.log('Request body:', req.body);
 
@@ -182,11 +357,81 @@ const registerNurse = asyncHandler(async(req, res, next) => {
     }
 });
 
+const getNursesByDoctor = asyncHandler(async(req, res) => {
+    const doctorId = req.currentUser.id || req.currentUser._id; // Handle both cases
+    console.log("Doctor ID from Token:", doctorId); // Debugging
+
+    const query = req.query;
+    const limit = query.limit || 5;
+    const page = query.page || 1;
+    const skip = (page - 1) * limit;
+    const nurses = await Nurse.find({ doctor: doctorId }, { '__v': false, 'password': false })
+                                .limit(limit)
+                                .skip(skip);
+    if (!nurses.length) {
+        return res.status(404).json({ status: httpStatusText.FAIL, message: 'No nurses found' });
+    }
+    res.json({ status: httpStatusText.SUCCESS, data: { nurses } });
+});
+
+const rateDoctor = asyncHandler(async (req, res, next) => {
+    const { rating } = req.body;
+    const doctorId = req.params.id;
+    if (!rating || rating < 1 || rating > 5) {
+        return next(appError.create('Please provide a rating between 1 and 5', 400));
+    }
+    const doctor = await Doctor.findById(doctorId);
+    if (!doctor) {
+        return next(appError.create('Doctor not found', 404));
+    }
+    const newTotalRatings = doctor.totalRating + 1;
+    doctor.averageRating = ((doctor.averageRating * doctor.totalRating) + rating) / newTotalRatings;
+    doctor.totalRating = newTotalRatings;
+    await doctor.save();
+    res.status(200).json({
+        status: 'success',
+        data: {
+            averageRating: doctor.averageRating,
+            totalRating: doctor.totalRating
+        }
+    });
+});
+
+const getDoctorRatings = asyncHandler(async (req, res, next) => {
+    const doctorId = req.params.id;
+    const doctor = await Doctor.findById(doctorId);
+    if (!doctor) {
+        return next(appError.create('Doctor not found', 404));
+    }
+    res.status(200).json({
+        status: 'success',
+        data: {
+            averageRating: doctor.averageRating,
+            totalRating: doctor.totalRating
+        }
+    });
+});
+
 
 module.exports = {
     register,
     requestResetPassword,
     resetPassword,
     login,
-    registerNurse
+    getAllDoctors,
+    getDoctorsBySpecialty,
+    getDoctorsByName,
+    getDoctorsByLocation,
+    getDoctorById,
+    updateDoctor,
+    updateDoctorStatus,
+    deleteDoctor,
+    getDoctorSchedule,
+    updateDoctorSchedule,
+    getProfile,
+    getDoctorDashboard,
+    registerNurse,
+    getNursesByDoctor,
+    rateDoctor,
+    getDoctorRatings
 }
