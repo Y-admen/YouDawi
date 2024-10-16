@@ -318,14 +318,11 @@ const getDoctorDashboard = asyncHandler(async(req, res, next) => {
     const patientIds = await Appointment.find({ doctorId: doctorId })
         .distinct('patientId');
     
-    const nurseIds = await Appointment.find({ doctorId: doctorId })
-        .distinct('nurseId');
-    
     const patients = await Patient.find({ _id: { $in: patientIds } })
-        .select('firstName lastName email');
+        .select('firstName lastName email phone');
     
-    const nurses = await Nurse.find({ _id: { $in: nurseIds } })
-        .select('firstName lastName');
+    const nurses = await Nurse.find({ doctor: doctorId })
+        .select('firstName lastName email phone');
 
     const doctor = await Doctor.findById(doctorId)
     res.status(200).json({ status: httpStatusText.SUCCESS, data: { upcomingAppointments, patients, nurses, schedule: doctor.schedule }})
