@@ -1,6 +1,7 @@
 const Doctor = require("../models/doctorModel");
 const Nurse = require("../models/nurseModel");
 const Appointment = require("../models/appointmentModel");
+const Patient = require('../models/patientModel')
 const asyncHandler = require("../middlewares/asyncHandler");
 const httpStatusText = require('../utils/httpStatusText');
 const bcrypt = require("bcryptjs");
@@ -314,13 +315,17 @@ const getDoctorDashboard = asyncHandler(async(req, res, next) => {
     .populate('patientId', 'firstName lastName phone email')
     .populate('nurseId', 'firstName lastName')
 
-    const patients = await Appointment.find( { doctorId: doctorId })
-        .distinct('patientId')
-        .populate('patientId', 'firstName lastName email');
+    const patientIds = await Appointment.find({ doctorId: doctorId })
+        .distinct('patientId');
     
-    const nurses = await Appointment.find({ doctorId: doctorId })
-        .distinct(nurseId)
-        .populate('nurseId', 'firstName lastName');
+    const nurseIds = await Appointment.find({ doctorId: doctorId })
+        .distinct('nurseId');
+    
+    const patients = await Patient.find({ _id: { $in: patientIds } })
+        .select('firstName lastName email');
+    
+    const nurses = await Nurse.find({ _id: { $in: nurseIds } })
+        .select('firstName lastName');
 
     const doctor = await Doctor.findById(doctorId)
     res.status(200).json({ status: httpStatusText.SUCCESS, data: { upcomingAppointments, patients, nurses, schedule: doctor.schedule }})
@@ -362,8 +367,8 @@ const registerNurse = asyncHandler(async(req, res, next) => {
 });
 
 const getNursesByDoctor = asyncHandler(async(req, res) => {
-    const doctorId = req.currentUser.id || req.currentUser._id; // Handle both cases
-    console.log("Doctor ID from Token:", doctorId); // Debugging
+    const doctorId = req.currentUser.id || req.currentUser._id; 
+    console.log("Doctor ID from Token:", doctorId);
 
     const query = req.query;
     const limit = query.limit || 5;

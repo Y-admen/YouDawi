@@ -31,6 +31,18 @@ router.route('/name')
 router.route('/location')
     .get(verifyToken, doctorsController.getDoctorsByLocation);
 
+router.route('/profile')
+    .get(verifyToken, allowedTo(userRoles.DOCTOR), doctorsController.getProfile);
+
+router.route('/dashboard')
+    .get(verifyToken, allowedTo(userRoles.DOCTOR, userRoles.ADMIN), doctorsController.getDoctorDashboard);
+
+router.route('/registerNurse')
+    .post(verifyToken, allowedTo(userRoles.DOCTOR, userRoles.ADMIN), doctorsController.registerNurse);
+
+router.route('/nurses')
+    .get(verifyToken, allowedTo(userRoles.DOCTOR), doctorsController.getNursesByDoctor);
+
 router.route('/:id')
     .get(verifyToken, doctorsController.getDoctorById)
     .put(verifyToken, allowedTo(userRoles.DOCTOR, userRoles.ADMIN),doctorsController.updateDoctor)
@@ -42,18 +54,6 @@ router.route('/:id/schedule')
 
 router.route('/:id/status')
     .put(verifyToken, allowedTo(userRoles.ADMIN),doctorsController.updateDoctorStatus);
-
-router.route('/profile')
-    .get(verifyToken, allowedTo(userRoles.DOCTOR), doctorsController.getProfile);
-
-router.route('/dashboard')
-    .get(verifyToken, allowedTo(userRoles.DOCTOR, userRoles.ADMIN), doctorsController.getDoctorDashboard);
-
-router.route('/registerNurse')
-    .post(verifyToken, allowedTo(userRoles.DOCTOR, userRoles.ADMIN), doctorsController.registerNurse);
-
-router.route('/nurses')
-.get(verifyToken, allowedTo(userRoles.DOCTOR), doctorsController.getNursesByDoctor);
 
 router.route('/:id/rate')
     .post(verifyToken, allowedTo(userRoles.PATIENT, userRoles.ADMIN), doctorsController.rateDoctor);
