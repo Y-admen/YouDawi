@@ -7,5 +7,6 @@ const userRoles = require('../utils/userRoles')
 
 router.route('/')
     .get(verifyToken, allowedTo(userRoles.DOCTOR), prescriptionController.getAllprescriptions)
+    .post(verifyToken, allowedTo(userRoles.DOCTOR), prescriptionController.postprescription)
 
 module.exports = router;
