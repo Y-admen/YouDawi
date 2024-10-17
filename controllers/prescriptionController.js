@@ -50,8 +50,18 @@ const getprescriptionById = asyncHandler(async(req, res) => {
     res.json({ status: httpStatusText.SUCCESS, data: { prescription } });
 });
 
+const updatePrescription = asyncHandler(async(req, res) => {
+    const prescription = await Prescription.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true }).select('-__v');
+    // new: return updated document / runValidators: updated data meets schema requirements.
+    if (!prescription) {
+        return res.status(404).json({ status: httpStatusText.FAIL, message: 'prescription not found' });
+    }
+    res.json({ status: httpStatusText.SUCCESS, data: { prescription } });
+});
+
 module.exports = {
     getAllprescriptions,
     postprescription,
-    getprescriptionById
+    getprescriptionById,
+    updatePrescription
 }
