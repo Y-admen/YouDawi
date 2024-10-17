@@ -106,6 +106,21 @@ const getAppointmentsByPatientId = asyncHandler(async(req, res) => {
   res.json({ status: httpStatusText.SUCCESS, data: { patientAppointments } });
 });
 
+const approveAppointment = asyncHandler(async(req, res, next) => {
+  const appointmentId = req.params.id;
+
+    const appointment = await Appointment.findById(appointmentId);
+    if (!appointment) {
+        return next(appError.create('Appointment not found', 404, httpStatusText.FAIL));
+    }
+
+    appointment.status = 'Confirmed';
+    await appointment.save();
+
+    res.status(200).json({ status: httpStatusText.SUCCESS, message: 'Appointment confirmed.' });
+});
+
+
 
 module.exports = {
     getAllAppointments,
@@ -114,5 +129,6 @@ module.exports = {
     updateAppointment,
     deleteAppointment,
     getAppointmentsByDoctorId,
-    getAppointmentsByPatientId
+    getAppointmentsByPatientId,
+    approveAppointment
 }

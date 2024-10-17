@@ -23,4 +23,9 @@ router.route('/patient/:id')
     .get(verifyToken,
         allowedTo(userRoles.PATIENT, userRoles.ADMIN),
         appointmentController.getAppointmentsByPatientId)
+
+router.route('/:id/approve')
+    .post(verifyToken, allowedTo(userRoles.PATIENT),
+        appointmentController.approveAppointment);
+
 module.exports = router;
