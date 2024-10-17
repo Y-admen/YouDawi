@@ -14,5 +14,7 @@ router.route('/:id')
         prescriptionController.getprescriptionById)
     .put(verifyToken, allowedTo(userRoles.DOCTOR),
         prescriptionController.updatePrescription)
+    .delete(verifyToken, allowedTo(userRoles.DOCTOR),
+        prescriptionController.deleteprescription);
 
 module.exports = router;

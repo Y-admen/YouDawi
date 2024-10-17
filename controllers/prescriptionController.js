@@ -59,9 +59,18 @@ const updatePrescription = asyncHandler(async(req, res) => {
     res.json({ status: httpStatusText.SUCCESS, data: { prescription } });
 });
 
+const deleteprescription = asyncHandler(async(req, res) => {
+    const prescription = await Prescription.findByIdAndDelete(req.params.id).select('-__v');
+    if (!prescription) {
+        return res.status(404).json({ status: httpStatusText.FAIL, message: 'Prescription not found' });
+    }
+    res.json({ status: httpStatusText.SUCCESS, data: null });
+})
+
 module.exports = {
     getAllprescriptions,
     postprescription,
     getprescriptionById,
-    updatePrescription
+    updatePrescription,
+    deleteprescription
 }
