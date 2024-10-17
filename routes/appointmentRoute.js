@@ -28,4 +28,7 @@ router.route('/:id/approve')
     .post(verifyToken, allowedTo(userRoles.PATIENT),
         appointmentController.approveAppointment);
 
+router.route('/:id/cancel')
+    .post(verifyToken, allowedTo(userRoles.PATIENT), appointmentController.cancelAppointment);
+
 module.exports = router;

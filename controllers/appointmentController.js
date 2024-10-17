@@ -4,7 +4,7 @@ const asyncHandler = require('../middlewares/asyncHandler')
 const httpStatusText = require('../utils/httpStatusText')
 const { validateAppointmentTime } = require('../utils/appointmentUtils');
 const appError = require('../utils/appError')
-//const { authorizeUserAccess } = require('../utils/authUserAccess');
+    //const { authorizeUserAccess } = require('../utils/authUserAccess');
 const userRoles = require('../utils/userRoles')
 
 const getAllAppointments = asyncHandler(async(req, res) => {
@@ -81,33 +81,33 @@ const getAppointmentsByDoctorId = asyncHandler(async(req, res) => {
 });
 
 const getAppointmentsByPatientId = asyncHandler(async(req, res) => {
-  const requestedPatientId = req.params.id;
+    const requestedPatientId = req.params.id;
 
-  const { authorized, message } = authorizeUserAccess(
-      [userRoles.ADMIN, userRoles.PATIENT],
-      req.headers,
-      requestedPatientId
-  );
+    const { authorized, message } = authorizeUserAccess(
+        [userRoles.ADMIN, userRoles.PATIENT],
+        req.headers,
+        requestedPatientId
+    );
 
-  if (!authorized) {
-      return res.status(403).json({ status: httpStatusText.FAIL, message });
-  }
-  const query = req.query;
-  const limit = query.limit || 5;
-  const page = query.page || 1;
-  const skip = (page - 1) * limit;
-  const patientAppointments = await Appointment
-      .find({ patientId: req.params.id }, { '__v': false })
-      .limit(limit)
-      .skip(skip);
-  if (!patientAppointments) {
-      return res.status(404).json({ status: httpStatusText.FAIL, message: 'Ptient Appointments not found' });
-  }
-  res.json({ status: httpStatusText.SUCCESS, data: { patientAppointments } });
+    if (!authorized) {
+        return res.status(403).json({ status: httpStatusText.FAIL, message });
+    }
+    const query = req.query;
+    const limit = query.limit || 5;
+    const page = query.page || 1;
+    const skip = (page - 1) * limit;
+    const patientAppointments = await Appointment
+        .find({ patientId: req.params.id }, { '__v': false })
+        .limit(limit)
+        .skip(skip);
+    if (!patientAppointments) {
+        return res.status(404).json({ status: httpStatusText.FAIL, message: 'Ptient Appointments not found' });
+    }
+    res.json({ status: httpStatusText.SUCCESS, data: { patientAppointments } });
 });
 
 const approveAppointment = asyncHandler(async(req, res, next) => {
-  const appointmentId = req.params.id;
+    const appointmentId = req.params.id;
 
     const appointment = await Appointment.findById(appointmentId);
     if (!appointment) {
@@ -120,7 +120,18 @@ const approveAppointment = asyncHandler(async(req, res, next) => {
     res.status(200).json({ status: httpStatusText.SUCCESS, message: 'Appointment confirmed.' });
 });
 
+const cancelAppointment = asyncHandler(async(req, res, next) => {
+    const appointmentId = req.params.id;
+    const appointment = await Appointment.findById(appointmentId);
+    if (!appointment) {
+        return next(appError.create('Appointment not found', 404, httpStatusText.FAIL));
+    }
 
+    appointment.status = 'Cancelled';
+    await appointment.save();
+
+    res.status(200).json({ status: httpStatusText.SUCCESS, message: 'Appointment cancelled.' });
+});
 
 module.exports = {
     getAllAppointments,
@@ -130,5 +141,6 @@ module.exports = {
     deleteAppointment,
     getAppointmentsByDoctorId,
     getAppointmentsByPatientId,
-    approveAppointment
+    approveAppointment,
+    cancelAppointment
 }
