@@ -42,7 +42,16 @@ const postprescription = asyncHandler(async(req, res) => {
     res.status(201).json({ status: httpStatusText.SUCCESS, data: { prescription: response } });
 });
 
+const getprescriptionById = asyncHandler(async(req, res) => {
+    const prescription = await Prescription.findById(req.params.id).select('-__v');
+    if (!prescription) {
+        return res.status(404).json({ status: httpStatusText.FAIL, message: 'Prescription not found' });
+    }
+    res.json({ status: httpStatusText.SUCCESS, data: { prescription } });
+});
 
 module.exports = {
-    getAllprescriptions
+    getAllprescriptions,
+    postprescription,
+    getprescriptionById
 }

@@ -9,4 +9,8 @@ router.route('/')
     .get(verifyToken, allowedTo(userRoles.DOCTOR), prescriptionController.getAllprescriptions)
     .post(verifyToken, allowedTo(userRoles.DOCTOR), prescriptionController.postprescription)
 
+router.route('/:id')
+    .get(verifyToken, allowedTo(userRoles.DOCTOR, userRoles.PATIENT),
+        prescriptionController.getprescriptionById)
+
 module.exports = router;
