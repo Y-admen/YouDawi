@@ -23,5 +23,10 @@ router.route('/profile')
 router.route('/')
   .get(verifyToken, patientController.getAllPatients);
 
+router.route('/:id')
+  .get(verifyToken, patientController.getPatientById)
+  .put(verifyToken, allowedTo(userRoles.DOCTOR, userRoles.ADMIN), patientController.updatePatient)
+  .delete(verifyToken, allowedTo(userRoles.DOCTOR, userRoles.ADMIN), patientController.deletePatient);
+
 
 module.exports = router;

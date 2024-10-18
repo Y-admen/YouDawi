@@ -125,41 +125,48 @@ const resetPassword = asyncHandler(async (req, res, next) => {
 
 const getAllPatients = asyncHandler(async (req, res, next) => {
   const query = req.query;
-  const limit = parseInt(query.limit || '5');
-  const page = parseInt(query.page || '1');
-
-  if (limit <= 0 || limit > 100) {
-    return res.status(400).json({ status: httpStatusText.FAIL, message: 'Invalid limit value' });
-  }
-  if (page <= 0) {
-    return res.status(400).json({ status: httpStatusText.FAIL, message: 'Invalid page number' });
-  }
-
+  const limit = query.limit || 5;
+  const page = query.page || 1;
   const skip = (page - 1) * limit;
+  const patients = await Patient.find({}, { '__v': false, 'password': false }).limit(limit).skip(skip);
+  res.json({ status: httpStatusText.SUCCESS, data: { patients } });
+});
 
-  const projection = {
-    __v: 0,
-    password: 0
-  };
-
-  try {
-    const patients = await Patient.find()
-      .select(projection)
-      .limit(limit)
-      .skip(skip);
-
-    res.json({
-      status: httpStatusText.SUCCESS,
-      data: {
-        patients,
-        total: await Patient.countDocuments(),
-        pages: Math.ceil((await Patient.countDocuments()) / limit)
-      }
-    });
-  } catch (error) {
-    console.error('Error fetching patients:', error);
-    res.status(500).json({ status: httpStatusText.ERROR, message: 'An error occurred while fetching patients' });
+const getPatientById = asyncHandler(async (req, res, next) => {
+  const patient = await Patient.findById(req.params.id);
+  if (!patient) {
+    return res.status(404).json({ status: httpStatusText.FAIL, message: 'Patient not found' });
   }
+  res.json({ status: httpStatusText.SUCCESS, data: { patient } });
+});
+
+const updatePatient = asyncHandler(async (req, res) => {
+  if (req.currentUser.role !== userRoles.ADMIN) {
+    if (req.currentUser.id !== req.params.id) {
+      return res.status(403).json({
+        status: httpStatusText.FAIL,
+        message: 'You are not authorized to update this patient\'s data.'
+      });
+    }
+    delete req.body.status;
+  }
+  if (req.body.password) {
+    const salt = await bcrypt.genSalt(10);
+    req.body.password = await bcrypt.hash(req.body.password, salt);
+  }
+  const patient = await Patient.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+  if (!patient) {
+    return res.status(404).json({ status: httpStatusText.FAIL, message: 'Patient not found' });
+  }
+  res.json({ status: httpStatusText.SUCCESS, data: { patient } });
+});
+
+const deletePatient = asyncHandler(async (req, res, next) => {
+  const patient = await Patient.findByIdAndDelete(req.params.id);
+  if (!patient) {
+    return res.status(404).json({ status: httpStatusText.FAIL, message: 'Patient not found' });
+  }
+  res.json({ status: httpStatusText.SUCCESS, data: null });
 });
 
 module.exports = {
@@ -168,5 +175,8 @@ module.exports = {
   requestResetPassword,
   resetPassword,
   getProfile,
-  getAllPatients
+  getAllPatients,
+  getPatientById,
+  updatePatient,
+  deletePatient
 }
