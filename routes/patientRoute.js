@@ -4,6 +4,7 @@ const patientController = require('../controllers/patientController')
 const verifyToken = require('../middlewares/verifyToken')
 const allowedTo = require('../middlewares/allowedTo')
 const userRoles = require('../utils/userRoles')
+const upload = require('../utils/upload');
 
 router.route('/register')
   .post(upload.single('avatar'), patientController.registerPatient);
