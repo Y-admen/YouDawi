@@ -6,7 +6,7 @@ const allowedTo = require('../middlewares/allowedTo')
 const userRoles = require('../utils/userRoles')
 
 router.route('/register')
-  .post(patientController.registerPatient);
+  .post(upload.single('avatar'), patientController.registerPatient);
 
 router.route('/login')
   .post(patientController.login);

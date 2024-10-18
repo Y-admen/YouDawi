@@ -12,6 +12,12 @@ const registerPatient = asyncHandler(async (req, res, next) => {
     const error = appError.create('User already exists', 400, httpStatusText.FAIL);
     return next(error);
   }
+  let avatar = 'pics/default.png';
+  if (req.file) {
+    avatar = req.file.filename;
+    console.log('Avatar uploaded successfully:', avatar);
+  }
+
 
   // salt, which is a random string added to the password
   const salt = await bcrypt.genSalt(10);
@@ -26,6 +32,7 @@ const registerPatient = asyncHandler(async (req, res, next) => {
     dataOfBirth,
     age,
     address,
+    avatar,
     healthHistory
   });
   // secure way to encode and transmit user information 
@@ -57,11 +64,6 @@ const requestResetPassword = asyncHandler(async (req, res, next) => {
 
     await patient.save();
     const resetURL = `http://${req.headers.host}/resetPassword/${token}`;
-    // console.log(resetURL)
-
-    // console.log('EMAIL_USER:', process.env.EMAIL_USER);
-    // console.log('EMAIL_PASS:', process.env.EMAIL_PASS);
-
     await sendPasswordResetEmail(patient.email, resetURL);
     res.status(200).json({ status: httpStatusText.SUCCESS, message: 'Password reset email sent' });
   } catch (error) {
