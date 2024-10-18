@@ -11,6 +11,12 @@ router.route('/register')
 router.route('/login')
   .post(patientController.login);
 
+router.route('/requestResetPassword')
+  .post(patientController.requestResetPassword);
+
+router.route('/resetPassword/:token')
+  .post(patientController.resetPassword);
+
 router.route('/profile')
   .get(verifyToken, allowedTo(userRoles.ADMIN, userRoles.PATIENT), patientController.getProfile);
 

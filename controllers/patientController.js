@@ -41,6 +41,36 @@ const registerPatient = asyncHandler(async (req, res, next) => {
   }
 });
 
+const requestResetPassword = asyncHandler(async (req, res, next) => {
+  const { email } = req.body;
+  try {
+    const patient = await Patient.findOne({ email });
+
+    if (!patient) {
+      return next(appError.create('Patient not found, Please register', 404, httpStatusText.FAIL));
+    }
+
+    const token = crypto.randomBytes(20).toString('hex');
+
+    patient.resetPasswordToken = crypto.createHash('sha256').update(token).digest('hex');
+    patient.resetPasswordExpires = Date.now() + 3600000;
+
+    await patient.save();
+    const resetURL = `http://${req.headers.host}/resetPassword/${token}`;
+    // console.log(resetURL)
+
+    // console.log('EMAIL_USER:', process.env.EMAIL_USER);
+    // console.log('EMAIL_PASS:', process.env.EMAIL_PASS);
+
+    await sendPasswordResetEmail(patient.email, resetURL);
+    res.status(200).json({ status: httpStatusText.SUCCESS, message: 'Password reset email sent' });
+  } catch (error) {
+    console.error('Error sending email:', error);
+    return next(appError.create('Error sending email', 500, httpStatusText.FAIL));
+  }
+});
+
+
 const login = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
   if (!email || !password) {
@@ -70,6 +100,26 @@ const getProfile = asyncHandler(async (req, res, next) => {
   }
   res.json({ status: httpStatusText.SUCCESS, data: { patient } });
 });
+
+const resetPassword = asyncHandler(async (req, res, next) => {
+  const hashedToken = crypto.createHash('sha256').update(req.params.token).digest('hex');
+  const patient = await Patient.findOne({
+    resetPasswordToken: hashedToken,
+    resetPasswordExpires: { $gt: Date.now() },
+  });
+  if (!patient) {
+    return next(appError.create('Password reset token is invalid or has expired', 400, httpStatusText.FAIL));
+  }
+  const { password } = req.body;
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(password, salt);
+  patient.password = hashedPassword;
+  patient.resetPasswordToken = undefined;
+  patient.resetPasswordExpires = undefined;
+  await patient.save();
+  res.status(200).json({ status: httpStatusText.SUCCESS, message: 'Password has been reset successfully' });
+});
+
 
 const getAllPatients = asyncHandler(async (req, res, next) => {
   const query = req.query;
@@ -113,6 +163,8 @@ const getAllPatients = asyncHandler(async (req, res, next) => {
 module.exports = {
   registerPatient,
   login,
+  requestResetPassword,
+  resetPassword,
   getProfile,
   getAllPatients
 }
