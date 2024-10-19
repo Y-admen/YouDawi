@@ -11,10 +11,10 @@ function Footer_h() {
                 <h2 className="text-2xl font-bold"></h2>
                 </div>
                 
-             <h1 className="text-4xl">YouDawi</h1>
+           <h1 className="text-6xl">You<span className="text-yellow-500">Dawi</span></h1>
             <div className="flex space-x-4">
                 
-                <a href="#" className="text-zinc-200 font-serif text-lg">Are You A Doctor?</a>
+                <a href="#" className="text-zinc-200 font-serif text-4xl">Are You A Doctor?</a>
                                
                 </div>
                 <pr />
