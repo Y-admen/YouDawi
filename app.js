@@ -31,10 +31,14 @@ app.use((error, req, res, next) => {
     res.status(error.statusCode || 500).json({ status: error.statusText || httpStatusText.ERROR, message: error.message, code: error.statusCode || 500, data: null });
 });
 
-mongoose.connect(DB_URL).then(() => {
-    console.log(`Mongodb Server Started`);
-});
+if (process.env.NODE_ENV !== 'test') {
+    mongoose.connect(DB_URL).then(() => {
+        console.log('Mongodb Server Started');
+    });
+}
 
 app.listen(PORT, HOSTNAME, () => {
     console.log(`Server Started on http://${HOSTNAME}:${PORT}`);
 });
+
+module.exports = app;
