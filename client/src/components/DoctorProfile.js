@@ -1,5 +1,7 @@
 import React from 'react';
-
+import profileDoc1 from '../pics/profile_doc1.jpg';
+import profileDoc2 from '../pics/profile_doc2.jpg';
+import profileDoc3 from '../pics/profile_doc3.jpg';
 
      function DoctorProfile() {
             const doctors = [
@@ -9,7 +11,7 @@ import React from 'react';
                     experience: "5 yrs",
                     price: "120",
                     phone: "1234567890",
-                    image: "https://placehold.co/100x100?text=Doctor+1"
+                    image: profileDoc1
                 },
                 {
                     name: "Dr.Ahmed Hasam",
@@ -17,7 +19,7 @@ import React from 'react';
                     experience: "7 yrs",
                     price: "500",
                     phone: "123123123",
-                    image: "https://placehold.co/100x100?text=Doctor+2"
+                    image:profileDoc2
                 },
                 {
                     name: "Dr.Nasir sherasiya",
@@ -25,7 +27,7 @@ import React from 'react';
                     experience: "10 yrs",
                     price: "$100",
                     phone: "123456789",
-                    image: "https://placehold.co/100x100?text=Doctor+3"
+                    image: profileDoc3
                 }
             ];
 
