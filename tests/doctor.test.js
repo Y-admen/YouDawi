@@ -5,17 +5,12 @@ const mongoose = require('mongoose');
 const Doctor = require('../models/doctorModel');
 const userRoles = require('../utils/userRoles');
 
-//let mongoServer;
-
-jest.setTimeout(30000); // 30 seconds for all tests
-
 beforeAll(async () => {
-    await mongoose.connect('mongodb://localhost/test');
-}, 30000); // 30 seconds for beforeAll
-
+    await mongoose.connect(process.env.DB_URL_TEST);
+});
+  
 afterAll(async () => {
     await mongoose.disconnect();
-    server.close(); 
 });
 
 describe('Doctor API', () => {
