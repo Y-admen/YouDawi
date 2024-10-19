@@ -1,5 +1,6 @@
 const Appointment = require('../models/appointmentModel')
-const Patient = require('../models/patientModel')
+
+
 const asyncHandler = require('../middlewares/asyncHandler')
 const httpStatusText = require('../utils/httpStatusText')
 const { validateAppointmentTime } = require('../utils/appointmentUtils');
