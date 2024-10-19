@@ -47,10 +47,11 @@ You need to have the following installed to run this project:
 
 ## Getting Started
 
-### Navigate into the project directory:
+## Navigate into the project directory:
 
 ```bash
 cd YouDawi
+```
 
 ## Install the required dependencies
 
@@ -58,6 +59,7 @@ To install the necessary dependencies, run:
 
 ```bash
 npm install
+```
 
 ## Set up your environment variables
 
@@ -113,6 +115,7 @@ Make sure to set up your testing environment before running the tests.
 
 ```bash
 cd client
+```
 
 In the client folder, you can run:
 
