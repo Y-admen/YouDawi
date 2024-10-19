@@ -146,6 +146,6 @@ See the section about [deployment](https://facebook.github.io/create-react-app/d
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for more information.
+This project is licensed under a Proprietary License. You are allowed to use this software for learning purposes only. Redistribution and modification of the software are strictly prohibited. For further details, please refer to the [LICENSE](./LICENSE) file for more information.
 
 
