@@ -15,6 +15,7 @@ const httpStatusText = require('./utils/httpStatusText');
 const HOSTNAME = '127.0.0.1';
 const PORT = process.env.PORT || 5000;
 const DB_URL = process.env.DB_URL;
+const TEST_DB_URL = process.env.DB_URL_TEST;
 const app = express();
 
 app.use('/pics', express.static(path.join(__dirname, 'pics')));
@@ -34,6 +35,29 @@ app.use((error, req, res, next) => {
 mongoose.connect(DB_URL).then(() => {
     console.log(`Mongodb Server Started`);
 });
+
+
+// let dbConnection;
+
+// function connectToDatabase(url) {
+//     const conn = mongoose.createConnection(url, (err) => {
+//         if (err) {
+//             console.error(`Error connecting to MongoDB: ${url}`, err);
+//             process.exit(1);
+//         } else {
+//             console.log(`Connected to MongoDB using ${url}`);
+//         }
+//     });
+    
+//     return conn;
+// }
+
+// if (process.env.NODE_ENV === 'test') {
+//     dbConnection = connectToDatabase(TEST_DB_URL);
+// } else {
+//     dbConnection = connectToDatabase(DB_URL);
+// }
+
 
 app.listen(PORT, HOSTNAME, () => {
     console.log(`Server Started on http://${HOSTNAME}:${PORT}`);
