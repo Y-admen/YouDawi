@@ -9,12 +9,33 @@ import myImage2 from '../pics/banner1.jpg';
                     <div className="relative z-10 flex flex-col items-center justify-center h-full">
                         <div className="bg-white bg-opacity-85 p-11 rounded-lg shadow-lg text-center">
                             <h1 className="text-4xl font-bold text-blue-700 mb-4">Find the care you need</h1>
-                            <div className="flex space-x-4 mb-4">
-                                <input type="text" placeholder="Specialties" className="p-2 border border-gray-300 rounded" />
-                                <input type="text" placeholder="Search Doctors" className="p-2 border border-gray-300 rounded" />
-                                <input type="text" placeholder="Location" className="p-2 border border-gray-300 rounded" />
-                                <button className="bg-blue-600 text-white px-4 py-2 rounded">Search</button>
-                            </div>
+                           <div className="flex space-x-4 mb-4">
+    <select className="p-2 border border-gray-300 rounded">
+        <option value="" disabled selected>Specialty</option>
+        <option value="cardiology">Cardiology</option>
+        <option value="neurology">Neurology</option>
+        <option value="pediatrics">Pediatrics</option>
+        {/* Add more options as needed */}
+    </select>
+    
+    <select className="p-2 border border-gray-300 rounded">
+        <option value="" disabled selected>Search Doctors</option>
+        <option value="doctor1">Doctor 1</option>
+        <option value="doctor2">Doctor 2</option>
+        <option value="doctor3">Doctor 3</option>
+        {/* Add more options as needed */}
+    </select>
+    
+    <select className="p-2 border border-gray-300 rounded">
+        <option value="" disabled selected> Location</option>
+        <option value="new-york">Elmonfia</option>
+        <option value="los-angeles">port said</option>
+        <option value="chicago">cairo</option>
+        {/* Add more options as needed */}
+    </select>
+    
+    <button className="bg-blue-600 text-white px-4 py-2 rounded">Search</button>
+</div>
                             <p className="text-blue-600">
                                 Search by department and your current location
                             </p>
