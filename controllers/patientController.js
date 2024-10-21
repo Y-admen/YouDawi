@@ -4,6 +4,8 @@ const httpStatusText = require('../utils/httpStatusText')
 const appError = require('../utils/appError')
 const bcrypt = require("bcryptjs");
 const generateJWT = require("../utils/generateJWT");
+const crypto = require('crypto');
+const { sendPasswordResetEmail, sendNurseRegistrationEmail } = require('../utils/mailUtils')
 
 const registerPatient = asyncHandler(async (req, res, next) => {
   const { firstName, lastName, email, password, phone, gender, dataOfBirth, age, address, healthHistory } = req.body;
