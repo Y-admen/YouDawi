@@ -38,8 +38,7 @@ describe('Doctor API', () => {
     });
 
     afterEach(async () => {
-        // Cleanup code here
-        // For example, delete the registered doctor
+
         await Doctor.deleteOne({ email: 'jane.doe@example.com' });
     });
 
