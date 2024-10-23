@@ -15,6 +15,10 @@ import DoctorProfile from './components/DoctorProfile';
 import DoctorRegister from './components/DoctorRegister';
 import ProtectedRoute from './components/ProtectedRoute';  // Import ProtectedRoute
 import PatientDashboard from './components/PatientDashboard';
+import NurseLogin from './components/NurseLogin';
+import PatientProfile from './components/PatientProfile';
+import PatientAppointments from './components/PatientAppointments';
+
 
 import DoctorNurseDashboard from './components/DoctorNurseDashboard';
 import { RoleProvider } from './components/RoleContext';
@@ -22,7 +26,7 @@ import { jwtDecode } from 'jwt-decode';
 import ForgetPassword from './components/ForgetPassword';
 
 function App() {
-  const token = localStorage.getItem('doctorToken');
+  const token = localStorage.getItem('token');
   let decodedToken = null;
   let role = null;
 
@@ -67,6 +71,28 @@ function App() {
               }
 
             />
+
+            {/* Doctors */}
+            <Route
+              path="doctors"
+              element={
+                <ProtectedRoute allowedRoles={['patient']}>
+                  <DoctorList />
+                </ProtectedRoute>
+              }
+
+            />
+
+            {/* Patient Appointments */}
+            <Route
+              path="patient-appointments"
+              element={
+                <ProtectedRoute allowedRoles={['patient']}>
+                  <PatientAppointments patientId={decodedToken.id} />
+                </ProtectedRoute>
+              }
+
+            />
           </Route>
 
           {/* Public routes */}
@@ -74,18 +100,13 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/doctor-login" element={<DoctorLogin />} />
           <Route path="/doctor-register" element={<DoctorRegister />} />
+          <Route path="/nurse-login" element={<NurseLogin />} />
           <Route path="/public-home" element={<LandingPage />} />
           <Route path="/components-preview" element={<ComponentsPreview />} />
-          {/* Public routes (outside of layout) */}
-          <Route path="components-preview" element={<ComponentsPreview />} />
-          <Route path="public-home" element={<LandingPage />} />
-          <Route path="doctor-register" element={<DoctorRegister />} />
-          <Route path="doctor-login" element={<DoctorLogin />} />
-          <Route path="about" element={<About />} />
-          <Route path="register" element={<Register />} />
-          <Route path="login" element={<Login />} />
-          <Route path="doctorprofile" element={<DoctorProfile />} />
-          <Route path="forgetpassword" element={<ForgetPassword />} />  
+          <Route path="doctor-profile" element={<DoctorProfile />} />
+          <Route path="patient-profile" element={<PatientProfile />} />
+          <Route path="forgetpassword" element={<ForgetPassword />} />
+          <Route path="forgetpassword" element={<ForgetPassword />} />
 
           {/* Catch-all route */}
           <Route path="*" element={<Navigate to="/login" />} />
