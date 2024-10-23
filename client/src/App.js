@@ -14,10 +14,10 @@ import DoctorLogin from './components/DoctorLogin';
 import DoctorProfile from './components/DoctorProfile';
 import DoctorRegister from './components/DoctorRegister';
 import ProtectedRoute from './components/ProtectedRoute';  // Import ProtectedRoute
-import PatientDashboard from './components/PatientDashboard';
-import NurseLogin from './components/NurseLogin';
-import PatientProfile from './components/PatientProfile';
-import PatientAppointments from './components/PatientAppointments';
+// import PatientDashboard from './components/PatientDashboard';
+// import NurseLogin from './components/NurseLogin';
+// import PatientProfile from './components/PatientProfile';
+// import PatientAppointments from './components/PatientAppointments';
 
 
 import DoctorNurseDashboard from './components/DoctorNurseDashboard';
