@@ -14,10 +14,10 @@ import DoctorLogin from './components/DoctorLogin';
 import DoctorProfile from './components/DoctorProfile';
 import DoctorRegister from './components/DoctorRegister';
 import ProtectedRoute from './components/ProtectedRoute';  // Import ProtectedRoute
-// import PatientDashboard from './components/PatientDashboard';
-// import NurseLogin from './components/NurseLogin';
-// import PatientProfile from './components/PatientProfile';
-// import PatientAppointments from './components/PatientAppointments';
+import PatientDashboard from './components/PatientDashboard';
+import NurseLogin from './components/NurseLogin';
+import PatientProfile from './components/PatientProfile';
+import PatientAppointments from './components/PatientAppointments';
 
 
 import DoctorNurseDashboard from './components/DoctorNurseDashboard';
@@ -29,10 +29,12 @@ function App() {
   const token = localStorage.getItem('token');
   let decodedToken = null;
   let role = null;
+  let userId = "";
 
   if (token) {
     decodedToken = jwtDecode(token);  // Decode the token
     role = decodedToken.role;  // Extract the role from the token
+    userId = decodedToken.id;
   }
 
   return (
@@ -88,7 +90,7 @@ function App() {
               path="patient-appointments"
               element={
                 <ProtectedRoute allowedRoles={['patient']}>
-                  <PatientAppointments patientId={decodedToken.id} />
+                  <PatientAppointments patientId={userId} />
                 </ProtectedRoute>
               }
 

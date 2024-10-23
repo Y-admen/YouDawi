@@ -1,0 +1,15 @@
+/* styles.css or your relevant CSS file */
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+#root {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Makes sure the root takes at least the full height of the viewport */
+}
+
+main {
+    flex: 1; /* This allows the main content area to grow and push the footer down */
+}
