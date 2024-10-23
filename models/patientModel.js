@@ -30,13 +30,12 @@ const patientSchema = new mongoose.Schema({
     type: String,
     require: true
   },
-  dataOfBirth: {
-    type: Date,
+  dateOfBirth: {
+    type: Date,  // field format:  YYYY-MM-DD
     require: true
   },
   age: {
     type: Number,
-    require: true
   },
   avatar: {
     type: String,

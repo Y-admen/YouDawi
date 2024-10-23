@@ -8,12 +8,28 @@ const crypto = require('crypto');
 const { sendPasswordResetEmail, sendNurseRegistrationEmail } = require('../utils/mailUtils')
 
 const registerPatient = asyncHandler(async (req, res, next) => {
-  const { firstName, lastName, email, password, phone, gender, dataOfBirth, age, address, healthHistory } = req.body;
+  const { firstName, lastName, email, password, phone, gender, dateOfBirth, address, healthHistory } = req.body;
   const patient = await Patient.findOne({ email: email });
   if (patient) {
     const error = appError.create('User already exists', 400, httpStatusText.FAIL);
     return next(error);
   }
+  console.log("calculating age")
+  const calculateAge = (dob) => {
+    const birthDate = new Date(dob);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+
+    // Adjust if the birthday hasn't occurred yet this year
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
+  };
+
+  const age = calculateAge(dateOfBirth);
+  console.log("age:", age)
   let avatar = 'pics/default.png';
   if (req.file) {
     avatar = req.file.filename;
@@ -31,7 +47,7 @@ const registerPatient = asyncHandler(async (req, res, next) => {
     password: hashedPassword,
     phone,
     gender,
-    dataOfBirth,
+    dateOfBirth,
     age,
     address,
     avatar,
