@@ -7,6 +7,23 @@ const allowedTo = require('../middlewares/allowedTo');
 const userRoles = require('../utils/userRoles');
 const upload = require('../utils/upload');
 
+// -----Routes to use for the langing page------
+
+router.route('/all')
+    .get(doctorsController.getAll_Doctors);
+
+router.route('/bySpecialty')
+    .get(doctorsController.getDoctors_By_Specialty);
+
+router.route('/byName')
+    .get(doctorsController.getDoctors_By_Name);
+
+router.route('/byLocation')
+    .get(doctorsController.getDoctors_By_Location);
+
+
+//---------
+
 router.route('/register')
     .post(upload.single('avatar'), doctorsController.register);
 
@@ -66,5 +83,6 @@ router.route('/:id/rate')
 
 router.route('/:id/ratings')
     .get(doctorsController.getDoctorRatings);
+
 
 module.exports = router;
