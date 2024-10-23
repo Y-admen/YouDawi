@@ -1,0 +1,127 @@
+import React, { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import appointmentService from '../services/AppointmentService';
+import Navbar from '../components/Navbar';
+
+const PatientAppointments = ({ patientId }) => {
+    const { register, handleSubmit } = useForm();
+    const [appointments, setAppointments] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [doctorFilter, setDoctorFilter] = useState('');
+    const [dateFilter, setDateFilter] = useState('');
+    const [page, setPage] = useState(1);
+    const [limit] = useState(10); // Adjust the limit for pagination
+
+
+
+    useEffect(() => {
+        fetchAppointments();
+    }, [page]);
+
+    const fetchAppointments = async (filters = {}) => {
+        setLoading(true);
+        setError(null);
+
+        const params = { limit, page, ...filters };
+        
+        try {
+            const data = await appointmentService.getAppointmentsByPatientId(patientId, params);
+            setAppointments(data);
+            console.log('Appointments fetched:', data);
+        } catch (err) {
+            setError('Error fetching appointments. Please try again.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const onSubmit = (data) => {
+        const filters = {};
+        if (data.doctor) filters.doctor = data.doctor;
+        if (data.date) filters.date = data.date;
+        
+        fetchAppointments(filters);
+    };
+
+    const renderAppointment = (appointment) => {
+        return (
+            <div key={appointment.id} className="p-4 border rounded shadow-md mb-4">
+                <h3 className="text-lg font-semibold">Doctor: {appointment.doctor.name}</h3>
+                <p>Date: {new Date(appointment.date).toLocaleDateString()}</p>
+                <p>Status: {appointment.status}</p>
+                <p>Notes: {appointment.notes}</p>
+            </div>
+        );
+    };
+
+    return (
+        <div>
+            <Navbar />
+            <div className="mx-auto max-w-1/2 bg-white shadow-md p-10">
+                <div className="bg-blue-600 text-white text-center py-2 rounded-t-lg">
+                    <h2 className="text-lg font-semibold">My Appointments</h2>
+                </div>
+
+                {loading && <div className="text-blue-600">Loading appointments...</div>}
+                {error && <div className="text-red-600">{error}</div>}
+
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-4">
+                    <div>
+                        <label className="block text-gray-700">Filter by Doctor</label>
+                        <input
+                            type="text"
+                            {...register('doctor')}
+                            value={doctorFilter}
+                            onChange={(e) => setDoctorFilter(e.target.value)}
+                            placeholder="Enter doctor's name"
+                            className="w-full border border-gray-300 rounded px-3 py-2 mt-1"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-gray-700">Filter by Date</label>
+                        <input
+                            type="date"
+                            {...register('date')}
+                            value={dateFilter}
+                            onChange={(e) => setDateFilter(e.target.value)}
+                            className="w-full border border-gray-300 rounded px-3 py-2 mt-1"
+                        />
+                    </div>
+
+                    <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
+                        Apply Filters
+                    </button>
+                </form>
+
+                <div className="mt-6">
+                    <h3 className="text-xl font-semibold">Appointments</h3>
+                    {appointments.length === 0 ? (
+                        <div className="text-gray-600">No appointments found</div>
+                    ) : (
+                        appointments.map(renderAppointment)
+                    )}
+                </div>
+
+                <div className="mt-6 flex justify-between">
+                    <button
+                        onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+                        disabled={page === 1}
+                        className="bg-gray-300 px-4 py-2 rounded"
+                    >
+                        Previous
+                    </button>
+                    <button
+                        onClick={() => setPage((prev) => prev + 1)}
+                        className="bg-gray-300 px-4 py-2 rounded"
+                    >
+                        Next
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default PatientAppointments;
