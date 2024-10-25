@@ -55,8 +55,8 @@ describe('Admin Controller', () => {
 
     it('should return 404 if the admin is not found', async () => {
       const res = await request(app).post('/api/admin/login').send({
-        userName: 'nonexistentadmin',
-        password: 'testpassword'
+        userName: 'abdononexistentadmin',
+        password: 'password'
       });
 
       expect(res.status).toBe(404);
