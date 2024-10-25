@@ -12,11 +12,11 @@ describe('Admin Controller', () => {
   let token;
 
   beforeAll(async () => {
-    
+
     const mongoURI = process.env.DB_URL_TEST;
     await mongoose.connect(mongoURI);
 
-    
+
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash('testpassword', salt);
     adminData = new Admin({
@@ -27,7 +27,7 @@ describe('Admin Controller', () => {
 
     await adminData.save();
 
-   
+
     token = await generateJWT({
       userName: adminData.userName,
       id: adminData._id,
@@ -36,7 +36,7 @@ describe('Admin Controller', () => {
   });
 
   afterAll(async () => {
-    
+
     await Admin.deleteMany({});
     await mongoose.connection.close();
   });
@@ -85,7 +85,6 @@ describe('Admin Controller', () => {
       expect(res.body.status).toBe(httpStatusText.SUCCESS);
       expect(res.body.data).toBeDefined();
 
-      
       const decodedToken = jwt.verify(res.body.data, process.env.JWT_SECRET);
       expect(decodedToken.userName).toBe('admin');
       expect(decodedToken.role).toBe('admin');
