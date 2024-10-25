@@ -12,18 +12,11 @@ const upload = require('../utils/upload');
 router.route('/all')
     .get(doctorsController.getAll_Doctors);
 
-router.route('/bySpecialty')
-    .get(doctorsController.getDoctors_By_Specialty);
-
-router.route('/byName')
-    .get(doctorsController.getDoctors_By_Name);
-
-router.route('/byLocation')
-    .get(doctorsController.getDoctors_By_Location);
+router.route('/by')
+    .get(doctorsController.getDoctorsBy);
 
 
 //---------
-
 router.route('/register')
     .post(upload.single('avatar'), doctorsController.register);
 
@@ -65,10 +58,10 @@ router.route('/patients')
 
 router.route('/:id')
     .get(verifyToken, doctorsController.getDoctorById)
-    .put(verifyToken, allowedTo(userRoles.DOCTOR, userRoles.ADMIN),doctorsController.updateDoctor)
+    .put(verifyToken, allowedTo(userRoles.DOCTOR, userRoles.ADMIN), doctorsController.updateDoctor)
     .delete(verifyToken, allowedTo(userRoles.DOCTOR, userRoles.ADMIN), doctorsController.deleteDoctor);
 
-router.route('/:id/schedule')  // it returns the doctor appointments
+router.route('/:id/schedule')
     .get(verifyToken, allowedTo(userRoles.DOCTOR, userRoles.NURSE, userRoles.ADMIN), doctorsController.getDoctorSchedule)
     .put(verifyToken, allowedTo(userRoles.DOCTOR, userRoles.NURSE, userRoles.ADMIN), doctorsController.updateDoctorSchedule)
 
@@ -76,13 +69,14 @@ router.route('/:id/freeSlots')
     .get(doctorsController.getDoctorFreeSlots);
 
 router.route('/:id/status')
-    .put(verifyToken, allowedTo(userRoles.ADMIN),doctorsController.updateDoctorStatus);
+    .put(verifyToken, allowedTo(userRoles.ADMIN), doctorsController.updateDoctorStatus);
 
 router.route('/:id/rate')
     .post(verifyToken, allowedTo(userRoles.PATIENT, userRoles.ADMIN), doctorsController.rateDoctor);
 
 router.route('/:id/ratings')
     .get(doctorsController.getDoctorRatings);
+
 
 
 module.exports = router;
