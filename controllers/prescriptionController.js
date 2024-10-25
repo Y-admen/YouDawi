@@ -1,4 +1,5 @@
 const Prescription = require('../models/prescriptionModel')
+const Doctor = require('../models/doctorModel')
 const Patient = require('../models/patientModel');
 const asyncHandler = require('../middlewares/asyncHandler')
 const httpStatusText = require('../utils/httpStatusText')
@@ -27,15 +28,20 @@ const postprescription = asyncHandler(async(req, res) => {
     if (!patient) {
         return res.status(404).json({ status: httpStatusText.FAIL, message: 'Patient not found' });
     }
+    const doctor = await Doctor.findById(doctorId);
+    if (!doctor) {
+        return res.status(404).json({ status: httpStatusText.FAIL, message: 'Doctor not found' });
+    }
 
     patient.healthHistory.push({
-        prescriptions: {
-            prescriptionId: newPrescription._id,
-            medications: medications,
-            dateIssued: dateIssued,
-            instructions: instructions,
-            doctor: doctorId
-        }
+        doctor: doctorId,
+        prescriptions: [{
+            prescriptionId: newPrescription._id,  
+            doctorName: `${doctor.firstName} ${doctor.lastName}`,  
+            medications: medications,  
+            dateIssued: dateIssued,  
+            instructions: instructions  
+        }]
     });
 
     await patient.save();
