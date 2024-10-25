@@ -7,27 +7,30 @@ const userRoles = require('../utils/userRoles')
 const upload = require('../utils/upload');
 
 router.route('/register')
-  .post(upload.single('avatar'), patientController.registerPatient);
+    .post(upload.single('avatar'), patientController.registerPatient);
 
 router.route('/login')
-  .post(patientController.login);
+    .post(patientController.login);
 
 router.route('/requestResetPassword')
-  .post(patientController.requestResetPassword);
+    .post(patientController.requestResetPassword);
 
 router.route('/resetPassword/:token')
-  .post(patientController.resetPassword);
+    .post(patientController.resetPassword);
 
 router.route('/profile')
-  .get(verifyToken, allowedTo(userRoles.ADMIN, userRoles.PATIENT), patientController.getProfile);
+    .get(verifyToken, allowedTo(userRoles.ADMIN, userRoles.PATIENT), patientController.getProfile);
+
+router.route('/dashboard')
+    .get(verifyToken, patientController.getDashboard)
 
 router.route('/')
-  .get(verifyToken, patientController.getAllPatients);
+    .get(verifyToken, patientController.getAllPatients);
 
 router.route('/:id')
-  .get(verifyToken, patientController.getPatientById)
-  .put(verifyToken, allowedTo(userRoles.DOCTOR, userRoles.ADMIN), patientController.updatePatient)
-  .delete(verifyToken, allowedTo(userRoles.DOCTOR, userRoles.ADMIN), patientController.deletePatient);
+    .get(verifyToken, patientController.getPatientById)
+    .put(verifyToken, allowedTo(userRoles.DOCTOR, userRoles.ADMIN), patientController.updatePatient)
+    .delete(verifyToken, allowedTo(userRoles.DOCTOR, userRoles.ADMIN), patientController.deletePatient);
 
 
 module.exports = router;

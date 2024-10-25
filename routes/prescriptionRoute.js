@@ -10,11 +10,8 @@ router.route('/')
     .post(verifyToken, allowedTo(userRoles.DOCTOR), prescriptionController.postprescription)
 
 router.route('/:id')
-    .get(verifyToken, allowedTo(userRoles.DOCTOR, userRoles.PATIENT),
-        prescriptionController.getprescriptionById)
-    .put(verifyToken, allowedTo(userRoles.DOCTOR),
-        prescriptionController.updatePrescription)
-    .delete(verifyToken, allowedTo(userRoles.DOCTOR),
-        prescriptionController.deleteprescription);
+    .get(verifyToken, allowedTo(userRoles.DOCTOR, userRoles.PATIENT), prescriptionController.getprescriptionById)
+    .put(verifyToken, allowedTo(userRoles.DOCTOR), prescriptionController.updatePrescription)
+    .delete(verifyToken, allowedTo(userRoles.DOCTOR), prescriptionController.deleteprescription);
 
 module.exports = router;
