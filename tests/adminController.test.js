@@ -45,7 +45,7 @@ describe('Admin Controller', () => {
     it('should return 400 if username or password is missing', async () => {
       const res = await request(app).post('/api/admin/login').send({
         userName: '',
-        password: 'testpassword'
+        password: 'password'
       });
 
       expect(res.status).toBe(400);
