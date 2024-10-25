@@ -10,11 +10,11 @@ describe('Prescription Controller', () => {
   let prescriptionId;
 
   beforeAll(async () => {
-    
+
     const mongoURI = process.env.DB_URL_TEST;
     await mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true });
 
-    
+
     const patient = new Patient({
       name: 'Test Patient',
       healthHistory: []
@@ -25,7 +25,7 @@ describe('Prescription Controller', () => {
   });
 
   afterAll(async () => {
-    
+
     await Prescription.deleteMany({});
     await Patient.deleteMany({});
     await mongoose.connection.close();
@@ -48,7 +48,7 @@ describe('Prescription Controller', () => {
         doctorId: 'dummyDoctorId',
         medications: [{ name: 'Medication A', dosage: '100mg' }],
         dateIssued: new Date(),
-        instructions: 'Take once daily'
+        instructions: 'Take twice daily'
       });
 
       expect(res.status).toBe(201);
@@ -63,7 +63,7 @@ describe('Prescription Controller', () => {
         doctorId: 'dummyDoctorId',
         medications: [{ name: 'Medication A', dosage: '100mg' }],
         dateIssued: new Date(),
-        instructions: 'Take once daily'
+        instructions: 'Take twice daily'
       });
 
       expect(res.status).toBe(404);
