@@ -25,85 +25,58 @@ const getAll_Doctors = asyncHandler(async(req, res, next) => {
     res.json({ status: httpStatusText.SUCCESS, data: { doctors } });
 });
 
-const getDoctors_By_Specialty = asyncHandler(async (req, res, next) => {
-    const { specialty } = req.query;
-    // console.log(specialty);
-    if (!specialty || !specialty.trim()) {
-        return next(
-        appError.create('Specialty is required', 400, httpStatusText.FAIL)
-    );
+const getDoctorsBy = asyncHandler(async(req, res, next) => {
+    const { name, city, specialty, page = 1, limit = 5 } = req.query;
+
+    let query = { status: 'approved' };
+
+    if (name && name.trim()) {
+        const nameParts = name.trim().split(' ');
+        if (nameParts.length === 1) {
+            const singleName = nameParts[0];
+            query.$or = [
+                { firstName: { $regex: singleName, $options: 'i' } },
+                { lastName: { $regex: singleName, $options: 'i' } }
+            ];
+        } else if (nameParts.length === 2) {
+            const [firstName, lastName] = nameParts;
+            query.$or = [
+                { firstName: { $regex: firstName, $options: 'i' } },
+                { lastName: { $regex: lastName, $options: 'i' } }
+            ];
+        }
     }
-    const Condition = { specialization: specialty, status: 'approved' };
-    const doctors = await Doctor.find(Condition);
-    
+    if (city && city.trim()) {
+        query.city = city.trim();
+    }
+
+    if (specialty && specialty.trim()) {
+        query.specialization = specialty.trim();
+    }
+    const skip = (page - 1) * limit;
+    const doctors = await Doctor.find(query, { '__v': false, 'password': false })
+        .limit(Number(limit))
+        .skip(skip);
     if (!doctors || doctors.length === 0) {
-        return next(
-        appError.create('No doctors found for this specialty', 404, 'Not Found')
-    );
+        return next(appError.create('No doctors found with the provided criteria', 404, 'Not Found'));
     }
     res.status(200).json({ status: httpStatusText.SUCCESS, data: { doctors } });
 });
 
-const getDoctors_By_Name = asyncHandler(async (req, res, next) => {
-    const { firstName, lastName } = req.query;
-    if (!firstName || !firstName.trim()) {
-        return next(
-            appError.create('First name is required', 400, httpStatusText.FAIL)
-        );
-    }
-    if (!lastName || !lastName.trim()) {
-        return next(
-            appError.create('Last name is required', 400, httpStatusText.FAIL)
-        );
-    }
-    const Condition = { status: 'approved' };
-    const doctors = await Doctor.find({
-        $or: [
-            { firstName: { $regex: firstName, $options: 'i' } },
-            { lastName: { $regex: lastName, $options: 'i' } }
-        ],
-        ...Condition
-    });
-
-    if (!doctors || doctors.length === 0) {
-        return next(
-            appError.create('No doctors found with this name', 404, 'Not Found')
-        );
-    }
-
-    res.status(200).json({ status: httpStatusText.SUCCESS, data: { doctors } });
-});
-
-const getDoctors_By_Location = asyncHandler(async (req, res, next) => {
-    const { city } = req.query;
-    if (!city || !city.trim()) {
-        return next(
-            appError.create('City is required', 400, httpStatusText.FAIL)
-        );
-    }
-    const Condition = { city, status: 'approved' };
-    const doctors = await Doctor.find(Condition);
-    if (!doctors || doctors.length === 0) {
-        return next(
-            appError.create('No doctors found in this location', 404, 'Not Found')
-        );
-    }
-    res.status(200).json({ status: httpStatusText.SUCCESS, data: { doctors } });
-});
 // ---------------
 
 const register = asyncHandler(async(req, res, next) => {
     const { firstName, lastName, email, password, adresse, city, phone, specialization, role, schedule } = req.body;
     console.log('Request body:', req.body);
     console.log('File:', req.file);
-    const doctor = await Doctor.findOne({email: email});
+    const doctor = await Doctor.findOne({ email: email });
     if (doctor) {
         const error = appError.create('User already exists', 400, httpStatusText.FAIL)
         return next(error);
     }
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
-    
+
     // console.log(schedule);
     // console.log(typeof(schedule));
     let parsedSchedule = [];
@@ -174,11 +147,11 @@ const requestResetPassword = asyncHandler(async(req, res, next) => {
         res.status(200).json({ status: httpStatusText.SUCCESS, message: 'Password reset email sent' });
     } catch (error) {
         console.error('Error sending email:', error);
-            return next(appError.create('Error sending email', 500, httpStatusText.FAIL));
+        return next(appError.create('Error sending email', 500, httpStatusText.FAIL));
     }
 });
 
-const resetPassword = asyncHandler(async (req, res, next) => {
+const resetPassword = asyncHandler(async(req, res, next) => {
     const hashedToken = crypto.createHash('sha256').update(req.params.token).digest('hex');
     const doctor = await Doctor.findOne({
         resetPasswordToken: hashedToken,
@@ -198,12 +171,12 @@ const resetPassword = asyncHandler(async (req, res, next) => {
 });
 
 const login = asyncHandler(async(req, res, next) => {
-    const {email, password} = req.body;
+    const { email, password } = req.body;
     if (!email || !password) {
         const error = appError.create('Email and Password are required', 400, httpStatusText.FAIL);
         return next(error);
     }
-    const doctor = await Doctor.findOne({email: email}).select('+password');
+    const doctor = await Doctor.findOne({ email: email }).select('+password');
     if (!doctor) {
         const error = appError.create('Doctor not found', 404, httpStatusText.FAIL);
         return next(error);
@@ -213,7 +186,7 @@ const login = asyncHandler(async(req, res, next) => {
         const error = appError.create('Invalid credentials', 401, httpStatusText.FAIL);
         return next(error);
     }
-    
+
     if (doctor.status === 'pending') {
         const error = appError.create('Doctor is not approved yet', 403, httpStatusText.FAIL);
         return next(error);
@@ -221,7 +194,7 @@ const login = asyncHandler(async(req, res, next) => {
         const error = appError.create('Doctor account has been cancelled', 403, httpStatusText.FAIL);
         return next(error);
     }
-    
+
     const token = await generateJWT({ email: doctor.email, id: doctor._id, role: doctor.role });
     return res.status(200).json({ status: httpStatusText.SUCCESS, data: { token } });
 });
@@ -237,46 +210,51 @@ const getAllDoctors = asyncHandler(async(req, res, next) => {
     res.json({ status: httpStatusText.SUCCESS, data: { doctors } });
 });
 
-const getDoctorsBySpecialty = asyncHandler(async (req, res, next) => {
+const getDoctorsBySpecialty = asyncHandler(async(req, res, next) => {
     const { specialty } = req.query;
     // console.log(specialty);
     if (!specialty || !specialty.trim()) {
         return next(
-        appError.create('Specialty is required', 400, httpStatusText.FAIL)
-    );
+            appError.create('Specialty is required', 400, httpStatusText.FAIL)
+        );
     }
-    const { role} = req.currentUser;
+    const { role } = req.currentUser;
     const roleCondition = role === 'admin' ? { specialization: specialty } : { specialization: specialty, status: 'approved' };
     const doctors = await Doctor.find(roleCondition);
-    
+
     if (!doctors || doctors.length === 0) {
         return next(
-        appError.create('No doctors found for this specialty', 404, 'Not Found')
-    );
+            appError.create('No doctors found for this specialty', 404, 'Not Found')
+        );
     }
     res.status(200).json({ status: httpStatusText.SUCCESS, data: { doctors } });
 });
 
-const getDoctorsByName = asyncHandler(async (req, res, next) => {
-    const { firstName, lastName } = req.query;
-    if (!firstName || !firstName.trim()) {
+const getDoctorsByName = asyncHandler(async(req, res, next) => {
+    const { name } = req.query;
+
+    if (!name || !name.trim()) {
         return next(
-            appError.create('First name is required', 400, httpStatusText.FAIL)
+            appError.create('Name is required', 400, httpStatusText.FAIL)
         );
     }
-    if (!lastName || !lastName.trim()) {
-        return next(
-            appError.create('Last name is required', 400, httpStatusText.FAIL)
-        );
+
+    const nameParts = name.trim().split(' ');
+    let searchConditions = [];
+
+    if (nameParts.length === 1) {
+        const singleName = nameParts[0];
+        searchConditions.push({ firstName: { $regex: singleName, $options: 'i' } }, { lastName: { $regex: singleName, $options: 'i' } });
+    } else if (nameParts.length === 2) {
+        const [firstName, lastName] = nameParts;
+        searchConditions.push({ firstName: { $regex: firstName, $options: 'i' } }, { lastName: { $regex: lastName, $options: 'i' } });
     }
     const { role } = req.currentUser;
-    const statusCondition = role === 'admin' ? {} : { status: 'approved' };
+    const Condition = role === 'admin' ? {} : { status: 'approved' };
+
     const doctors = await Doctor.find({
-        $or: [
-            { firstName: { $regex: firstName, $options: 'i' } },
-            { lastName: { $regex: lastName, $options: 'i' } }
-        ],
-        ...statusCondition
+        $or: searchConditions,
+        ...Condition
     });
 
     if (!doctors || doctors.length === 0) {
@@ -288,14 +266,14 @@ const getDoctorsByName = asyncHandler(async (req, res, next) => {
     res.status(200).json({ status: httpStatusText.SUCCESS, data: { doctors } });
 });
 
-const getDoctorsByLocation = asyncHandler(async (req, res, next) => {
+const getDoctorsByLocation = asyncHandler(async(req, res, next) => {
     const { city } = req.query;
     if (!city || !city.trim()) {
         return next(
             appError.create('City is required', 400, httpStatusText.FAIL)
         );
     }
-    const { role} = req.currentUser;
+    const { role } = req.currentUser;
     const roleCondition = role === 'admin' ? { city } : { city, status: 'approved' };
     const doctors = await Doctor.find(roleCondition);
     if (!doctors || doctors.length === 0) {
@@ -319,7 +297,7 @@ const getDoctorById = asyncHandler(async(req, res, next) => {
 });
 
 const updateDoctor = asyncHandler(async(req, res, next) => {
-    if (req.currentUser.role !== userRoles.ADMIN){
+    if (req.currentUser.role !== userRoles.ADMIN) {
         if (req.currentUser.id !== req.params.id) {
             return res.status(403).json({
                 status: httpStatusText.FAIL,
@@ -342,7 +320,7 @@ const updateDoctor = asyncHandler(async(req, res, next) => {
 const updateDoctorStatus = asyncHandler(async(req, res, next) => {
     const { id } = req.params;
     const { status } = req.body;
-    const doctor = await Doctor.findByIdAndUpdate(id, { status }, { new: true, runValidators: true});
+    const doctor = await Doctor.findByIdAndUpdate(id, { status }, { new: true, runValidators: true });
     if (!doctor) {
         return res.status(404).json({ status: httpStatusText.FAIL, message: 'Doctor not found' });
     }
@@ -365,6 +343,22 @@ const getDoctorSchedule = asyncHandler(async(req, res, next) => {
         return res.status(404).json({ status: httpStatusText.FAIL, message: 'Appointments not found' });
     }
     res.json({ status: httpStatusText.SUCCESS, data: { appointments } });
+});
+
+const updateDoctorSchedule = asyncHandler(async(req, res, next) => {
+    const { id } = req.params;
+    const newData = req.params.body;
+    const updatedAppointment = await Doctor.findByIdAndUpdate(id, { schedule: newData }, { new: true, runValidators: true });
+    res.json({ status: httpStatusText.SUCCESS, data: { updatedAppointment } });
+});
+
+const getProfile = asyncHandler(async(req, res, next) => {
+    const { id } = req.currentUser;
+    const doctor = await Doctor.findById(id);
+    if (!doctor) {
+        return res.status(404).json({ status: httpStatusText.FAIL, message: 'Doctor not found' });
+    }
+    res.json({ status: httpStatusText.SUCCESS, data: { doctor } });
 });
 
 const getDoctorFreeSlots = asyncHandler(async(req, res, next) => {
@@ -392,51 +386,65 @@ const getDoctorFreeSlots = asyncHandler(async(req, res, next) => {
     });
 });
 
-const updateDoctorSchedule = asyncHandler(async(req, res, next) => {
-    const { id } = req.params;
-    const newData = req.params.body;
-    const updatedAppointment = await Doctor.findByIdAndUpdate(id, { schedule: newData }, { new: true, runValidators: true });
-    res.json({ status: httpStatusText.SUCCESS, data: { updatedAppointment } });
-});
-
-const getProfile = asyncHandler(async(req, res, next) => {
-    const { id } = req.currentUser;
-    const doctor = await Doctor.findById(id);
-    if (!doctor) {
-        return res.status(404).json({ status: httpStatusText.FAIL, message: 'Doctor not found' });
-    }
-    res.json({ status: httpStatusText.SUCCESS, data: { doctor } });
-});
-
 const getDoctorDashboard = asyncHandler(async(req, res, next) => {
     const doctorId = req.currentUser.id;
+
+    // Fetch upcoming appointments
     const upcomingAppointments = await Appointment.find({
-        doctorId: doctorId,
-        appointmentDate: { $gte: new Date() },
-        status: 'confirmed'  // Better to change to scheduled in the model
-    })
-    .populate('patientId', 'firstName lastName phone email')
-    .populate('nurseId', 'firstName lastName')
+            doctorId: doctorId,
+            appointmentDate: { $gte: new Date() }
+        })
+        .populate('patientId', 'firstName lastName phone email')
+        .populate('nurseId', 'firstName lastName');
 
-    const patientIds = await Appointment.find({ doctorId: doctorId })
-        .distinct('patientId');
-    
-    const patients = await Patient.find({ _id: { $in: patientIds } })
-        .select('firstName lastName email phone');
-    
-    const nurses = await Nurse.find({ doctor: doctorId })
-        .select('firstName lastName email phone');
+    const today = new Date();
+    const startOfToday = new Date(today.setHours(0, 0, 0, 0));
+    const endOfToday = new Date(today.setHours(23, 59, 59, 999));
 
-    const doctor = await Doctor.findById(doctorId)
-    res.status(200).json({ status: httpStatusText.SUCCESS, data: { upcomingAppointments, patients, nurses, schedule: doctor.schedule }})
+    // Fetch today's appointments
+    const todaysAppointments = await Appointment.find({
+            doctorId: doctorId,
+            appointmentDate: { $gte: startOfToday, $lt: endOfToday }
+        })
+        .populate('patientId', 'firstName lastName phone email')
+        .populate('nurseId', 'firstName lastName');
+
+    // Fetch patient IDs and related data
+    const patientIds = await Appointment.find({ doctorId: doctorId }).distinct('patientId');
+    const patients = await Patient.find({ _id: { $in: patientIds } }).select('firstName lastName email phone');
+    const nurses = await Nurse.find({ doctor: doctorId }).select('firstName lastName email phone');
+
+    // Fetch doctor's information including average rating
+    const doctor = await Doctor.findById(doctorId).select('firstName lastName averageRating');
+    console.log('Doctor Data:', doctor);
+
+    const counttodaysAppointments = todaysAppointments.length;
+
+    res.status(200).json({
+        status: httpStatusText.SUCCESS,
+        data: {
+            upcomingAppointments,
+            counttodaysAppointments,
+            patients,
+            nurses,
+            todaysAppointments,
+            doctor: doctor ? {
+                firstName: doctor.firstName,
+                lastName: doctor.lastName,
+                averageRating: doctor.averageRating
+            } : null
+        }
+    });
 });
+
+
 
 const registerNurse = asyncHandler(async(req, res, next) => {
     //console.log('Request body:', req.body);
 
     const { firstName, lastName, email, password, phone } = req.body;
     //console.log(req.body);
-    const nurse = await Nurse.findOne({email: email});
+    const nurse = await Nurse.findOne({ email: email });
     console.log('finding nurs')
     if (nurse) {
         const error = appError.create('Nurse already exists', 400, httpStatusText.FAIL)
@@ -467,16 +475,16 @@ const registerNurse = asyncHandler(async(req, res, next) => {
 });
 
 const getNursesByDoctor = asyncHandler(async(req, res) => {
-    const doctorId = req.currentUser.id || req.currentUser._id; 
-    console.log("Doctor ID from Token:", doctorId);
+    const doctorId = req.currentUser.id || req.currentUser._id; // Handle both cases
+    console.log("Doctor ID from Token:", doctorId); // Debugging
 
     const query = req.query;
     const limit = query.limit || 5;
     const page = query.page || 1;
     const skip = (page - 1) * limit;
     const nurses = await Nurse.find({ doctor: doctorId }, { '__v': false, 'password': false })
-                                .limit(limit)
-                                .skip(skip);
+        .limit(limit)
+        .skip(skip);
     if (!nurses.length) {
         return res.status(404).json({ status: httpStatusText.FAIL, message: 'No nurses found' });
     }
@@ -484,7 +492,7 @@ const getNursesByDoctor = asyncHandler(async(req, res) => {
 });
 
 const getPatientsByDoctor = asyncHandler(async(req, res) => {
-    const doctorId = req.currentUser.id || req.currentUser._id; 
+    const doctorId = req.currentUser.id || req.currentUser._id;
     console.log("Doctor ID from Token:", doctorId);
 
     const query = req.query;
@@ -492,8 +500,8 @@ const getPatientsByDoctor = asyncHandler(async(req, res) => {
     const page = query.page || 1;
     const skip = (page - 1) * limit;
     const patients = await Patient.find({ doctor: doctorId }, { '__v': false, 'password': false })
-                                .limit(limit)
-                                .skip(skip);
+        .limit(limit)
+        .skip(skip);
     console.log("Patients Found:", patients);
 
     if (!patients.length) {
@@ -502,7 +510,7 @@ const getPatientsByDoctor = asyncHandler(async(req, res) => {
     res.json({ status: httpStatusText.SUCCESS, data: { patients } });
 });
 
-const rateDoctor = asyncHandler(async (req, res, next) => {
+const rateDoctor = asyncHandler(async(req, res, next) => {
     const { rating } = req.body;
     const doctorId = req.params.id;
     if (!rating || rating < 1 || rating > 5) {
@@ -525,7 +533,7 @@ const rateDoctor = asyncHandler(async (req, res, next) => {
     });
 });
 
-const getDoctorRatings = asyncHandler(async (req, res, next) => {
+const getDoctorRatings = asyncHandler(async(req, res, next) => {
     const doctorId = req.params.id;
     const doctor = await Doctor.findById(doctorId);
     if (!doctor) {
@@ -542,11 +550,10 @@ const getDoctorRatings = asyncHandler(async (req, res, next) => {
 
 
 
+
 module.exports = {
     getAll_Doctors,
-    getDoctors_By_Specialty,
-    getDoctors_By_Name,
-    getDoctors_By_Location,
+    getDoctorsBy,
     register,
     requestResetPassword,
     resetPassword,
@@ -565,8 +572,8 @@ module.exports = {
     getProfile,
     getDoctorDashboard,
     registerNurse,
-    getNursesByDoctor,
     getPatientsByDoctor,
+    getNursesByDoctor,
     rateDoctor,
     getDoctorRatings
 }
