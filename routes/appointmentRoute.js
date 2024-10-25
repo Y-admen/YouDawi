@@ -24,9 +24,12 @@ router.route('/patient/:id')
         allowedTo(userRoles.PATIENT, userRoles.ADMIN),
         appointmentController.getAppointmentsByPatientId)
 
+router.route('/patient/:id/push-subscription')
+    .post(verifyToken, allowedTo(userRoles.PATIENT), appointmentController.setPushSubscription)
+    .get(verifyToken, allowedTo(userRoles.PATIENT), appointmentController.getPushSubscription)
+
 router.route('/:id/approve')
-    .post(verifyToken, allowedTo(userRoles.PATIENT),
-        appointmentController.approveAppointment);
+    .post(verifyToken, allowedTo(userRoles.PATIENT), appointmentController.approveAppointment);
 
 router.route('/:id/cancel')
     .post(verifyToken, allowedTo(userRoles.PATIENT), appointmentController.cancelAppointment);

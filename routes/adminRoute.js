@@ -9,24 +9,27 @@ const upload = require('../utils/upload');
 const router = express.Router();
 
 router.route('/login')
-  .post(adminController.login);
+    .post(adminController.login);
+
+router.route('/dashboard')
+    .get(adminController.getAdminDashboard)
 
 router.route('/doctors')
-  .get(verifyToken, allowedTo(userRoles.ADMIN), doctorsController.getAllDoctors)
-  .post(upload.single('avatar'), allowedTo(userRoles.ADMIN), doctorsController.register);
+    .get(verifyToken, allowedTo(userRoles.ADMIN), doctorsController.getAllDoctors)
+    .post(upload.single('avatar'), allowedTo(userRoles.ADMIN), doctorsController.register);
 
 router.route('/doctors/:id')
-  .get(verifyToken, allowedTo(userRoles.ADMIN), doctorsController.getDoctorById)
-  .put(verifyToken, allowedTo(userRoles.ADMIN), upload.single('avatar'), doctorsController.updateDoctor)
-  .delete(verifyToken, allowedTo(userRoles.ADMIN), doctorsController.deleteDoctor);
+    .get(verifyToken, allowedTo(userRoles.ADMIN), doctorsController.getDoctorById)
+    .put(verifyToken, allowedTo(userRoles.ADMIN), upload.single('avatar'), doctorsController.updateDoctor)
+    .delete(verifyToken, allowedTo(userRoles.ADMIN), doctorsController.deleteDoctor);
 
 router.route('/nurses')
-  .get(verifyToken, allowedTo(userRoles.ADMIN), nursesController.getAllNurses)
-  .post(upload.single('avatar'), allowedTo(userRoles.ADMIN), doctorsController.registerNurse);
+    .get(verifyToken, allowedTo(userRoles.ADMIN), nursesController.getAllNurses)
+    .post(upload.single('avatar'), allowedTo(userRoles.ADMIN), doctorsController.registerNurse);
 
 router.route('/nurses/:id')
-  .get(verifyToken, allowedTo(userRoles.ADMIN), nursesController.getNurseById)
-  .put(verifyToken, allowedTo(userRoles.ADMIN), upload.single('avatar'), nursesController.updateNurse)
-  .delete(verifyToken, allowedTo(userRoles.ADMIN), nursesController.deleteNurse);
+    .get(verifyToken, allowedTo(userRoles.ADMIN), nursesController.getNurseById)
+    .put(verifyToken, allowedTo(userRoles.ADMIN), upload.single('avatar'), nursesController.updateNurse)
+    .delete(verifyToken, allowedTo(userRoles.ADMIN), nursesController.deleteNurse);
 
 module.exports = router;

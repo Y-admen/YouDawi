@@ -31,8 +31,8 @@ const patientSchema = new mongoose.Schema({
         required: true
     },
     dateOfBirth: {
-        type: Date,  // field format:  YYYY-MM-DD
-    //    required: true
+        type: Date, // field format:  YYYY-MM-DD
+        //    required: true
     },
     age: {
         type: Number,
@@ -48,23 +48,23 @@ const patientSchema = new mongoose.Schema({
     healthHistory: [{
         familyStatus: {
             type: String,
-         //   required: true
+            //   required: true
         },
         diseases: {
             type: String,
-          //  required: true
+            //  required: true
         },
         examinations: {
             type: String,
-        //    required: true
+            //    required: true
         },
         diagnosis: {
             type: String,
-         //   require: true
+            //   require: true
         },
         treatment: {
             type: String,
-         //   require: true
+            //   require: true
         },
         patient: {
             type: mongoose.Schema.Types.ObjectId,
@@ -78,38 +78,38 @@ const patientSchema = new mongoose.Schema({
             prescriptionId: {
                 type: mongoose.Schema.Types.ObjectId,
                 ref: 'Prescription',
-             //   required: true
+                //   required: true
             },
             doctorName: {
                 type: String,
-              //  required: true  // doctor's name
+                //  required: true  // doctor's name
             },
             dateIssued: {
                 type: Date,
-              //  required: true
+                //  required: true
             },
             instructions: {
-                type: String,  
-               // required: true
+                type: String,
+                // required: true
             },
             medications: [{
                 name: {
                     type: String,
-                  //  required: true
+                    //  required: true
                 },
                 dosage: {
                     type: String,
-                   // required: true
+                    // required: true
                 },
                 frequency: {
                     type: String,
-                  //  required: true
+                    //  required: true
                 },
                 duration: {
                     type: String,
-                  //  required: true
+                    //  required: true
                 }
-                }]
+            }]
         }]
     }],
     appointmentsNotifications: [{
@@ -137,20 +137,20 @@ const patientSchema = new mongoose.Schema({
         }
 
     }],
-  // which holds the information needed to send push 
-  // notifications to that patient.
-  //  keys and endpoint information is needed to send push notifications.
+    // which holds the information needed to send push 
+    // notifications to that patient.
+    //  keys and endpoint information is needed to send push notifications.
     pushSubscription: {
-    endpoint: String,
-    keys: {
-        p256dh: String,
-        auth: String
-    }
+        endpoint: String,
+        keys: {
+            p256dh: String,
+            auth: String
+        }
     },
     role: {
-    type: String,
-    enum: [userRoles.PATIENT],
-    default: userRoles.PATIENT
+        type: String,
+        enum: [userRoles.PATIENT],
+        default: userRoles.PATIENT
     },
     token: {
         type: String
