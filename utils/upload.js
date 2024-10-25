@@ -1,6 +1,7 @@
 const multer = require('multer');
 const appError = require('../utils/appError');
 
+// Multer disk storage
 const diskStorage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, 'pics');
@@ -13,9 +14,10 @@ const diskStorage = multer.diskStorage({
     }
 });
 
+// Multer file filter
 const fileFilter = (req, file, cb) => {
     const imageType = file.mimetype.split('/')[0];
-    
+
     if (imageType === 'image') {
         return cb(null, true);
     } else {
