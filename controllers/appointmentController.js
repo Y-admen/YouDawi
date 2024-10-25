@@ -1,11 +1,10 @@
 const Appointment = require('../models/appointmentModel')
-
-
+const Patient = require('../models/patientModel')
 const asyncHandler = require('../middlewares/asyncHandler')
 const httpStatusText = require('../utils/httpStatusText')
 const { validateAppointmentTime } = require('../utils/appointmentUtils');
 const appError = require('../utils/appError')
-    //const { authorizeUserAccess } = require('../utils/authUserAccess');
+const { authorizeUserAccess } = require('../utils/authUserAccess');
 const userRoles = require('../utils/userRoles')
 
 const getAllAppointments = asyncHandler(async(req, res) => {
@@ -107,6 +106,32 @@ const getAppointmentsByPatientId = asyncHandler(async(req, res) => {
     res.json({ status: httpStatusText.SUCCESS, data: { patientAppointments } });
 });
 
+const setPushSubscription = asyncHandler(async(req, res, next) => {
+    const patientId = req.params.id;
+    const { endpoint, keys } = req.body;
+
+    const patient = await Patient.findById(patientId);
+    if (!patient) {
+        return next(appError.create('Patient not found', 404, httpStatusText.FAIL));
+    }
+
+    patient.pushSubscription = { endpoint, keys };
+    await patient.save();
+
+    res.status(200).json({ status: httpStatusText.SUCCESS, message: 'Push subscription set successfully.' });
+});
+
+const getPushSubscription = asyncHandler(async(req, res, next) => {
+    const patientId = req.params.id;
+
+    const patient = await Patient.findById(patientId);
+    if (!patient) {
+        return next(appError.create('Patient not found', 404, httpStatusText.FAIL));
+    }
+
+    res.status(200).json({ status: httpStatusText.SUCCESS, data: { pushSubscription: patient.pushSubscription } });
+});
+
 const approveAppointment = asyncHandler(async(req, res, next) => {
     const appointmentId = req.params.id;
 
@@ -142,6 +167,8 @@ module.exports = {
     deleteAppointment,
     getAppointmentsByDoctorId,
     getAppointmentsByPatientId,
+    setPushSubscription,
+    getPushSubscription,
     approveAppointment,
     cancelAppointment
 }
