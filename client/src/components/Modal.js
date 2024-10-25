@@ -16,7 +16,7 @@ const Modal = ({ isVisible, onClose, content, title }) => {
       className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
       onClick={handleOverlayClick}
     >
-      <div className="bg-white rounded-lg shadow-lg max-w-lg w-full relative p-6">
+      <div className="bg-white rounded-lg shadow-lg mx-auto p-6 max-w-[50%] max-h-[80%] overflow-y-scroll w-full relative p-6">
         {/* Close button */}
         <button
           onClick={onClose}

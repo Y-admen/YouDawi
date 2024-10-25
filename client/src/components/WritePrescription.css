@@ -1,0 +1,199 @@
+/* General styles for layout and spacing */
+.write-prescription-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Full viewport height */
+    background-color: #f5f5f5;
+}
+
+.prescription-paper {
+    background-color: white;
+    width: 8.5in;
+    padding: 2rem;
+    border: 1px solid #ddd;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+/* Header section for doctor logo and info */
+.header-section {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.doctor-logo img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    margin-right: 20px;
+}
+
+.doctor-info {
+    flex: 1;
+}
+
+.doctor-info h2 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.doctor-info p {
+    font-size: 18px;
+    color: gray;
+}
+
+/* Date and patient section styling */
+.date-patient-section {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.date, .patient {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.spacer {
+    flex: 1; /* Adds space between date and patient name */
+}
+
+label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+input[disabled] {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 5px;
+}
+
+/* Medications section styling */
+.medications-section {
+    margin-bottom: 20px;
+}
+
+.medication {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 10px;
+}
+
+.medication input {
+    width: 22%;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+/* Buttons styling */
+.remove-btn, .add-medication-btn, .submit-btn {
+    margin-top: 10px;
+    padding: 8px 15px;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 14px;
+    color: white;
+}
+
+.remove-btn {
+    background-color: #004481; /* Deep blue */
+}
+
+.add-medication-btn {
+    background-color: #196683; /* Lighter blue */
+}
+
+.add-medication-btn:hover, .remove-btn:hover, .submit-btn:hover {
+    background-color: #004481; /* Darker blue on hover */
+}
+
+.submit-btn {
+    background-color: #003357; /* Dark blue from the primary palette */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    display: block;
+    margin: 0 auto 30px auto; /* Centered horizontally and add space between it and the signature */
+}
+
+/* Instructions section styling */
+.instructions-section {
+    margin-bottom: 20px;
+}
+
+textarea {
+    width: 100%;
+    height: 100px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+/* Signature section styling */
+.signature-section {
+    margin-top: 50px; /* Add space between submit button and signature */
+    display: flex;
+    justify-content: flex-end; /* Align signature to the right */
+}
+
+.signature-section label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.signature-line {
+    width: 200px;
+    border-bottom: 1px solid black; /* The line for the signature */
+    margin-right: 10px;
+}
+
+/* Doctor contact info section */
+.doctor-contact-info {
+    margin-top: 40px;
+    text-align: center; /* Center the text */
+    font-size: 14px;
+    color: gray;
+    position: relative;
+}
+/* Light line before the contact info */
+.doctor-contact-info::before {
+    content: "";
+    display: block;
+    width: 100%;
+    height: 1px;
+    background-color: #ccc; /* Light gray line */
+    margin-bottom: 20px;
+    position: absolute;
+    top: -10px; /* Position it slightly above the contact info */
+}
+
+/* Print styles */
+@media print {
+    body * {
+        visibility: hidden;
+    }
+
+    .prescription-paper, .prescription-paper * {
+        visibility: visible;
+    }
+
+    .prescription-paper {
+        position: absolute;
+        left: 0;
+        top: 0;
+    }
+
+    .submit-btn, .add-medication-btn, .remove-btn {
+        display: none; /* Hide buttons during print */
+    }
+}

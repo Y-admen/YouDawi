@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import nurseService from '../services/NurseService';
+import Navbar from '../components/Navbar';
 
 const NurseLogin = () => {
   const [email, setEmail] = useState('');
@@ -27,24 +28,27 @@ const NurseLogin = () => {
       // Redirect to the dashboard or home page after successful login
       navigate('/dashboard');
     } catch (error) {
-      setMessage('Error logging in: ' + (error.response?.data?.message || error.message));
+      setMessage('Error registering doctor: ' + (error.response && error.response.data ? error.response.data.message : error.message));
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-lg max-w-50 w-full">
-        <h2 className="text-2xl font-bold text-center mb-6 text-blue-600">Nurse Login</h2>
+    <>
+    <Navbar/>
+    <div className="min-h-screen flex items-center justify-center rounded-2xl bg-primary-35">
+      <div className="flex w-4/5 h-4/5 max-h-70 bg-white opacity-90 rounded-2xl shadow-lg overflow-hidden">
+      <div className="w-1/2 p-8">
+        <h2 className="text-5xl font-bold text-primary-30 text-center mt-2 mb-2">Nurse Login</h2>
         <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-gray-700 font-bold mb-2" htmlFor="email">
+          <div className="">
+            <label className="block mb-2 text-gray-700" htmlFor="email">
               Email
             </label>
             <input
               type="email"
               id="email"
               placeholder="Enter your email"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-2 py-1 rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -52,14 +56,14 @@ const NurseLogin = () => {
           </div>
 
           <div className="mb-4">
-            <label className="block text-gray-700 font-bold mb-2" htmlFor="password">
+            <label className="block mb-2 text-gray-700" htmlFor="password">
               Password
             </label>
             <input
               type="password"
               id="password"
               placeholder="Enter your password"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-2 py-1 rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -68,28 +72,33 @@ const NurseLogin = () => {
 
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-700 transition duration-300"
+            className="w-full bg-primary-30 text-white py-1 rounded-lg font-semibold shadow-lg hover:bg-[#00263d] transition"
           >
             Login
           </button>
 
-          {message && <p className="mt-4 text-center text-red-500">{message}</p>}  {/* Display login error or success message */}
+          {/* {message && <p className="mt-4 text-center text-red-500">{message}</p>}  Display login error or success message */}
 
-          <div className="text-center mt-4">
-            <a href="#" className="text-blue-600 hover:underline">
-              Forgot Password?
-            </a>
-          </div>
-
-          <div className="flex justify-center mt-4">
-            Or
-          </div>
-          <div className="flex justify-center">
-            <Link to="/nurse-register">Sign Up</Link>
-          </div>
+            {/* Remember Me & Forgot Password */}
+            <div className="flex items-center mt-3">
+                <input type="checkbox" className="mr-2" />
+                <label className="text-gray-700">Remember Me</label>
+                    <a href="/forget-password" className="ml-auto text-blue-500">
+                          Forgot Your Password?
+                    </a>
+            </div>
         </form>
       </div>
+      <div className="w-1/2 relative">
+                    <img
+                        src="Illustration.png"
+                        alt="Transparent overlay"
+                        className="relative rounded-2xl z-10 mx-auto my-8 opacity-90"
+                    />
+                </div>
+      </div>
     </div>
+    </>
   );
 };
 
