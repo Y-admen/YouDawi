@@ -1,5 +1,5 @@
 const request = require('supertest');
-const app = require('../app'); 
+const app = require('../app');
 const Nurse = require('../models/nurseModel');
 const userRoles = require('../utils/userRoles');
 const mongoose = require('mongoose');
@@ -8,9 +8,9 @@ const mongoose = require('mongoose');
 jest.mock('../models/nurseModel');
 
 describe('Nurse Controller', () => {
-    
+
     afterAll(async () => {
-        
+
         await mongoose.connection.close();
     });
 
@@ -18,13 +18,13 @@ describe('Nurse Controller', () => {
         it('should return a token when login is successful', async () => {
             const mockNurse = {
                 _id: 'nurseId123',
-                email: 'testnurse@gmail.com',
+                email: 'testnurse465@gmail.com',
                 password: await bcrypt.hash('password123', 10),
                 status: 'Active',
                 role: 'Nurse'
             };
 
-            
+
             Nurse.findOne.mockResolvedValue(mockNurse);
 
             const response = await request(app)
