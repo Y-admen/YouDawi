@@ -5,7 +5,7 @@ const Patient = require('../models/patientModel');
 const sendEmail = require('./mailUtils');
 
 
-cron.schedule('0 0 * * *', async() => {
+cron.schedule('0 0 * * *', async () => {
     try {
         const oneDayAhead = new Date();
         oneDayAhead.setDate(oneDayAhead.getDate() + 1);
@@ -15,8 +15,8 @@ cron.schedule('0 0 * * *', async() => {
             appointmentDate: { $gte: oneDayAhead, $lt: new Date(oneDayAhead.getTime() + 24 * 60 * 60 * 1000) },
             status: 'Pending',
         });
-
-        appointments.forEach(async(appointment) => {
+        // send email to patients to approve or cancel the appointment
+        appointments.forEach(async (appointment) => {
             try {
                 const doctor = await Doctor.findById(appointment.doctorId);
                 const patient = await Patient.findById(appointment.patientId);
