@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
-
+// prescriptionSchema is a blueprint for the Prescription model
 const prescriptionSchema = new Schema({
     patientId: {
         type: Schema.Types.ObjectId,
