@@ -27,7 +27,7 @@ describe('Doctor API', () => {
                 firstName: 'John',
                 lastName: 'Doe',
                 email: 'john.doe@example.com',
-                password: 'password123',
+                password: 'password1238',
                 adresse: '123 Main St',
                 city: 'Cairo',
                 phone: '0123456789',
