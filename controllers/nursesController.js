@@ -13,13 +13,13 @@ const crypto = require('crypto');
 const { sendPasswordResetEmail } = require('../utils/mailUtils')
 
 
-const login= asyncHandler(async(req, res, next) => {
-    const {email, password} = req.body;
+const login = asyncHandler(async(req, res, next) => {
+    const { email, password } = req.body;
     if (!email || !password) {
         const error = appError.create('Email and Password are required', 400, httpStatusText.FAIL);
         return next(error);
     }
-    const nurse = await Nurse.findOne({email: email});
+    const nurse = await Nurse.findOne({ email: email });
     if (!nurse) {
         const error = appError.create('Nurse not found', 404, httpStatusText.FAIL);
         return next(error);
@@ -62,11 +62,11 @@ const requestResetPassword = asyncHandler(async(req, res, next) => {
         res.status(200).json({ status: httpStatusText.SUCCESS, message: 'Password reset email sent' });
     } catch (error) {
         console.error('Error sending email:', error);
-            return next(appError.create('Error sending email', 500, httpStatusText.FAIL));
+        return next(appError.create('Error sending email', 500, httpStatusText.FAIL));
     }
 });
 
-const resetPassword = asyncHandler(async (req, res, next) => {
+const resetPassword = asyncHandler(async(req, res, next) => {
     const hashedToken = crypto.createHash('sha256').update(req.params.token).digest('hex');
     const nurse = await Nurse.findOne({
         resetPasswordToken: hashedToken,
@@ -103,7 +103,7 @@ const getNurseById = asyncHandler(async(req, res) => {
 });
 
 const updateNurse = asyncHandler(async(req, res) => {
-    if (req.currentUser.role !== userRoles.ADMIN && req.currentUser.role !== userRoles.DOCTOR){
+    if (req.currentUser.role !== userRoles.ADMIN && req.currentUser.role !== userRoles.DOCTOR) {
         if (req.currentUser.id !== req.params.id) {
             return res.status(403).json({
                 status: httpStatusText.FAIL,
@@ -135,7 +135,7 @@ const deleteNurse = asyncHandler(async(req, res) => {
 const deactivateNurse = asyncHandler(async(req, res) => {
     const { id } = req.params;
     const { status } = req.body;
-    const nurse = await Nurse.findByIdAndUpdate(id, { status }, { new: true, runValidators: true});
+    const nurse = await Nurse.findByIdAndUpdate(id, { status }, { new: true, runValidators: true });
     if (!nurse) {
         return res.status(404).json({ status: httpStatusText.FAIL, message: 'Nurse not found' });
     }
@@ -150,14 +150,14 @@ const getProfile = asyncHandler(async(req, res, next) => {
     res.json({ status: httpStatusText.SUCCESS, data: { nurse } });
 });
 
-const getNurseDashboard = asyncHandler(async (req, res, next) => {
+const getNurseDashboard = asyncHandler(async(req, res, next) => {
     const nurseId = req.currentUser.id;
-    
+
     try {
         const nurse = await Nurse.findById(nurseId)
             .populate('doctor', 'firstName lastName')
             .select('-password');
-        
+
         if (!nurse) {
             return res.status(404).json({ message: 'Nurse not found' });
         }
@@ -172,7 +172,7 @@ const getNurseDashboard = asyncHandler(async (req, res, next) => {
                 doctor: nurse.doctor ? `${nurse.doctor.firstName} ${nurse.doctor.lastName}` : null
             },
             appointments: await getUpcomingAppointments(nurse._id),
-            patients: await Appointment.find( { nurseId: nurseId })
+            patients: await Appointment.find({ nurseId: nurseId })
                 .distinct('patientId')
                 .populate('patientId', 'firstName lastName email')
         };
@@ -180,18 +180,18 @@ const getNurseDashboard = asyncHandler(async (req, res, next) => {
         res.status(200).json(dashboardData);
     } catch (error) {
         console.error('Error fetching nurse dashboard:', error);
-        next(error); 
+        next(error);
     }
 });
 
 async function getUpcomingAppointments(nurseId) {
     try {
         return Appointment.find({
-            nurseId: nurseId,
-            status: 'confirmed'
-        })
-        .populate('patient', 'firstName lastName phone email')
-        .select('_id appointmentDate patient');
+                nurseId: nurseId,
+                status: 'confirmed'
+            })
+            .populate('patient', 'firstName lastName phone email')
+            .select('_id appointmentDate patient');
     } catch (error) {
         console.error('Error fetching upcoming appointments:', error);
         throw error;
