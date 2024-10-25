@@ -1,5 +1,6 @@
 class AppError extends Error {
-    constructor(){
+    // Error class for handling errors
+    constructor() {
         super();
     }
 
