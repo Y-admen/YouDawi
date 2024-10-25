@@ -4,5 +4,5 @@ const userRoles = {
     DOCTOR: "doctor",
     NURSE: "nurse",
 }
-
+// user roles [admin-doctor - nurse - patient]
 module.exports = userRoles;
