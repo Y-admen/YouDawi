@@ -36,11 +36,11 @@ const postprescription = asyncHandler(async(req, res) => {
     patient.healthHistory.push({
         doctor: doctorId,
         prescriptions: [{
-            prescriptionId: newPrescription._id,  
-            doctorName: `${doctor.firstName} ${doctor.lastName}`,  
-            medications: medications,  
-            dateIssued: dateIssued,  
-            instructions: instructions  
+            prescriptionId: newPrescription._id,
+            doctorName: `${doctor.firstName} ${doctor.lastName}`,
+            medications: medications,
+            dateIssued: dateIssued,
+            instructions: instructions
         }]
     });
 
