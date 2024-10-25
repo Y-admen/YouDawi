@@ -3,11 +3,11 @@ const validator = require('validator');
 const userRoles = require('../utils/userRoles')
 
 const DoctorSchema = new mongoose.Schema({
-    firstName : {
+    firstName: {
         type: String,
         required: true
     },
-    lastName : {
+    lastName: {
         type: String,
         required: true
     },
@@ -56,28 +56,24 @@ const DoctorSchema = new mongoose.Schema({
     status: {
         type: String,
         enum: ['pending', 'approved', 'cancelled'],
-        default: 'pending'
+        default: 'approved'
     },
-    schedule: [
-        {
-            day: {
+    schedule: [{
+        day: {
+            type: String,
+            required: true
+        },
+        timeSlots: [{
+            slot: {
                 type: String,
-                required: true
+                required: true // Example: "09:00"
             },
-            timeSlots: [
-                {
-                    slot: {
-                        type: String,
-                        required: true // Example: "09:00"
-                    },
-                    isBooked: {
-                        type: Boolean,
-                        default: false
-                    }
-                }
-            ]
-        }
-    ],
+            isBooked: {
+                type: Boolean,
+                default: false
+            }
+        }]
+    }],
     price: {
         type: Number
     },
@@ -88,7 +84,7 @@ const DoctorSchema = new mongoose.Schema({
     totalRating: {
         type: Number,
         default: 0,
-        
+
     },
     appointment: {
         type: mongoose.Schema.Types.ObjectId,
