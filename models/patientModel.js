@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const userRoles = require('../utils/userRoles');
 const validator = require('validator');
 
-
+// patientSchema is a blueprint for the Patient model
 const patientSchema = new mongoose.Schema({
   firstName: {
     type: String,
