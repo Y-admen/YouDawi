@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { loginNurse } from '../services/NurseService'; // Import the login service for nurses
+import nurseService from '../services/NurseService';
 
 const NurseLogin = () => {
   const [email, setEmail] = useState('');
@@ -17,15 +17,15 @@ const NurseLogin = () => {
     };
 
     try {
-      const response = await loginNurse(loginData);  // Pass loginData as an object
+      const response = await nurseService.loginNurse(loginData);  // Pass loginData as an object
       setMessage('Login successful!');
 
       // Save the token or any other information if needed
-      localStorage.setItem('nurseToken', response.data.token); // Access token correctly
+      localStorage.setItem('token', response.data.token); // Access token correctly
       console.log(response);
 
       // Redirect to the dashboard or home page after successful login
-      navigate('/home');  
+      navigate('/dashboard');
     } catch (error) {
       setMessage('Error logging in: ' + (error.response?.data?.message || error.message));
     }
