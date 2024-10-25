@@ -6,28 +6,34 @@
     gap: 24px;
     background: linear-gradient(to right, #ECF2FF, #FBFCFF);
 }
+
 /* Image */
 .about-image-content {
     width: 50%;
     max-width: 100%;
     text-align: center;
 }
+
 .about-image1 {
     width: 80%;
     height: auto;
 }
+
 /* Text */
 .about-text-content {
     width: 50%;
 }
+
 .about-title {
-   font-family: "Source Sans Pro", "Arial", sans-serif;
+    font-family: "Source Sans Pro", "Arial", sans-serif;
     font-size: 40px;
     font-weight: bold;
 }
-.about-title > span {
+
+.about-title>span {
     position: relative;
 }
+
 .about-title span::before {
     content: '';
     position: absolute;
@@ -38,57 +44,67 @@
     left: 0;
     bottom: -12px;
 }
+
 .about-description {
     margin: 32px 0;
     color: #4d4b4b;
-    font-family:  'sans-serif';
+    font-family: 'sans-serif';
     font-size: 20px;
     letter-spacing: 2px;
     line-height: 4rem;
 }
+
 .about-text-title {
     margin: 0 0 24px 0;
     color: #4d4b4b;
-   font-family: "Source Sans Pro", "Arial", sans-serif;
+    font-family: "Source Sans Pro", "Arial", sans-serif;
     font-size: 25px;
     font-weight: bold;
     letter-spacing: 2px;
 }
+
 /* Steps */
 .about-text-step {
     margin: 16px 0;
 }
+
 .about-text-sTitle {
-   font-family: "Source Sans Pro", "Arial", sans-serif;
+    font-family: "Source Sans Pro", "Arial", sans-serif;
     font-size: 20px;
     font-weight: bold;
     letter-spacing: 2px;
 }
+
 .about-text-description {
     margin: 8px 24px;
     color: #000000;
-   font-family: "Source Sans Pro", "Arial", sans-serif;
+    font-family: "Source Sans Pro", "Arial", sans-serif;
     letter-spacing: 2px;
     line-height: 4rem;
     font-size: 15px;
 }
+
 .fa-icon {
     color: #1b57a0;
 }
+
 /* Responsive */
 @media screen and (max-width: 1000px) {
     .about-section {
         display: block;
     }
+
     .about-image-content {
         width: 100%;
         max-width: 100%;
         margin: 0 0 32px 0;
     }
+
     .about-image1 {
         width: 100%;
         height: 100%;
     }
+
     .about-text-content {
         width: 100%;
     }

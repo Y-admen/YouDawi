@@ -16,7 +16,6 @@ function About() {
         </h3>
         <p className="about-description">
           Welcome to <span style={{ color: "RoyalBlue", fontSize: "20px", fontWeight: "bold" }}>YouDawi</span>
-          <pr/>
           your trusted partner for accessible and
           personalized healthcare. Our expert doctors offer online consultations
           and specialized services, prioritizing your well-being. Join us on
